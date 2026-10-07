@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>BeGirl9 POS</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BeGirl9 POS">
+
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f3f5f8;color:#17202a}
+button,input,select{font:inherit}button{border:0;border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:700}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.side{background:#111827;color:#fff;padding:22px 14px}.brand{font-size:20px;font-weight:800;padding:8px 10px 25px}.nav button{display:block;width:100%;text-align:left;background:transparent;color:#d7dde5;margin:4px 0}.nav button.active,.nav button:hover{background:#273244;color:#fff}
+main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}.title{font-size:25px;font-weight:800}.pill{background:#e8edf4;padding:8px 12px;border-radius:20px;font-weight:700}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 3px 18px #11182712}.search{display:flex;gap:8px}.search input,.form input,.form select{width:100%;padding:12px;border:1px solid #d5dbe3;border-radius:9px}.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin-top:14px}.product{border:1px solid #e0e5eb;background:#fff;padding:14px;text-align:left;border-radius:12px}.product:hover{border-color:#8b95a5;transform:translateY(-1px)}.product b{display:block;margin-bottom:7px}.muted{color:#6b7280;font-size:13px}.price{font-size:18px;font-weight:800}.cartrow{display:grid;grid-template-columns:1fr 70px 80px 35px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #edf0f3}.qty{display:flex;gap:4px}.qty button{padding:5px 9px;background:#edf1f5}.danger{background:#fee2e2;color:#991b1b}.primary{background:#111827;color:white}.secondary{background:#e9edf2;color:#17202a}.success{background:#166534;color:#fff}.totals{margin-top:15px}.line{display:flex;justify-content:space-between;margin:8px 0}.grand{font-size:22px;font-weight:900;border-top:1px solid #ddd;padding-top:10px}.sale-badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:800;margin-left:5px}.old-price{text-decoration:line-through;color:#9ca3af;margin-right:5px}.promo-box{border:1px solid #dbeafe;background:#eff6ff;border-radius:10px;padding:10px;margin-top:10px}.paygrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.paygrid button{background:#f0f3f7}.paygrid button.active{outline:2px solid #111827}.actions{display:flex;gap:8px;flex-wrap:wrap}.section{display:none}.section.active{display:block}.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.form label{font-size:13px;font-weight:700}.form .full{grid-column:1/-1}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px;border-bottom:1px solid #e9edf1;text-align:left}.low{color:#b91c1c;font-weight:800}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:16px;padding:20px;max-width:600px;width:100%;max-height:90vh;overflow:auto}
+@media(max-width:850px){.app{grid-template-columns:1fr}.side{position:sticky;top:0;z-index:4;padding:8px}.brand{display:none}.nav{display:flex;overflow:auto}.nav button{width:auto;white-space:nowrap}.grid{grid-template-columns:1fr}.form{grid-template-columns:1fr}.top{align-items:flex-start}.cartrow{grid-template-columns:1fr 65px 70px 32px}}
+
+.business-header img{width:100%;height:100%;object-fit:contain}
+#bizLogoPreview img{max-width:180px;max-height:90px;border:1px solid #ddd;border-radius:8px;padding:4px}
+
+.pos-live-branding-panel{
+  position:fixed;
+  top:86px;
+  right:18px;
+  width:270px;
+  z-index:20;
+}
+.pos-live-preview-card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+.preview-label{font-size:11px;font-weight:800;letter-spacing:.08em;color:#6b7280;margin-bottom:12px}
+.pos-preview-logo{
+  width:58px;height:58px;margin:0 auto 10px;display:none;align-items:center;justify-content:center;
+  border-radius:10px;overflow:hidden;background:#f3f4f6;
+}
+.pos-preview-logo img{width:100%;height:100%;object-fit:contain}
+.pos-preview-name{text-align:center;font-size:20px;font-weight:800;word-break:break-word}
+.pos-preview-info{text-align:center;font-size:12px;color:#6b7280;margin-top:5px;line-height:1.35}
+.preview-divider{height:1px;background:#eee;margin:14px 0}
+.pos-live-preview-card label{display:block;font-size:12px;font-weight:700;margin:10px 0}
+.pos-live-preview-card input[type=range]{width:100%}
+.pos-live-preview-card select{width:100%;margin-top:5px;padding:8px;border:1px solid #ddd;border-radius:8px;background:#fff}
+.pos-live-preview-card button{width:100%;margin-top:10px}
+@media (min-width: 1100px){
+  #posLiveBrandingPanel + *{margin-right:300px}
+}
+@media (max-width: 1099px){
+  .pos-live-branding-panel{position:static;width:auto;margin:14px 0}
+}
+
+.screen-branding{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:#fff;border:1px solid #e5e7eb;border-radius:12px;
+  padding:10px 18px;margin:0 auto;
+  width:fit-content;max-width:100%;text-align:center;
+}
+.screen-brand-text{text-align:center}
+.top{position:relative;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px}
+.top > div:first-child{display:contents}
+.top .title{grid-column:1;grid-row:1;justify-self:start}
+.top .screen-branding{grid-column:2;grid-row:1;justify-self:center}
+.top .muted{grid-column:1;grid-row:2;justify-self:start}
+.top > .pill,.top > button{grid-column:3;grid-row:1;justify-self:end}
+.section > .title + .screen-branding{margin:0 auto 14px}
+@media(max-width:850px){.top{grid-template-columns:1fr auto}.top .screen-branding{grid-column:1 / -1;grid-row:2}.top .muted{grid-column:1;grid-row:3}.top > .pill,.top > button{grid-column:2;grid-row:1}}
+.screen-brand-logo{
+  width:58px;height:58px;display:none;align-items:center;justify-content:center;
+  flex:0 0 auto;border-radius:9px;overflow:hidden;background:#f3f4f6;
+}
+.screen-brand-logo img{width:100%;height:100%;object-fit:contain}
+.screen-brand-name{font-size:20px;font-weight:800;line-height:1.15;word-break:break-word}
+.screen-brand-info{font-size:12px;color:#6b7280;margin-top:3px;line-height:1.3}
+.sale-badge{display:inline-block;background:#dc2626;color:#fff;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:800;margin-left:5px}.old-price{text-decoration:line-through;color:#9ca3af;font-size:.85em;margin-right:5px}.promo-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:10px}.promo-item{display:flex;align-items:center;gap:7px;border:1px solid #e5e7eb;border-radius:9px;padding:8px;background:#fff}.promo-item input{width:auto!important}.promo-status{padding:8px 10px;border-radius:8px;background:#f3f4f6;margin-top:10px}.promo-exception-list{display:grid;gap:10px;margin-top:10px}.promo-exception{border:1px solid #e5e7eb;border-radius:10px;padding:10px;background:#fff}.promo-exception-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.promo-exception-controls{display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:end;margin-top:9px}.promo-exception-controls label{font-size:12px}.promo-exception-controls input,.promo-exception-controls select{padding:9px;border:1px solid #d5dbe3;border-radius:8px;width:100%}.promo-exception-badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:999px;padding:3px 7px;font-size:11px;font-weight:800}.promo-exception-scan{display:flex;gap:8px;margin-top:10px}.promo-exception-scan input{flex:1;padding:10px;border:1px solid #d5dbe3;border-radius:9px}.promo-exception-note{padding:9px 10px;border-radius:8px;background:#fff7ed;margin-top:10px}.promo-exception-empty{padding:10px;border:1px dashed #d1d5db;border-radius:9px;color:#6b7280;background:#fafafa}
+@media(max-width:600px){
+  .screen-branding{padding:9px 10px}
+  .screen-brand-logo{width:48px;height:48px}
+}
+
+.portable-transfer{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.transfer-note{background:#f7f9fc;border:1px solid #e5e7eb;border-radius:10px;padding:12px;line-height:1.45}
+.transfer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.transfer-actions button{flex:1;min-width:180px}
+@media(max-width:650px){.portable-transfer{grid-template-columns:1fr}.transfer-actions button{width:100%}}
+
+.cloud-sync-status{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sync-dot{width:10px;height:10px;border-radius:50%;background:#9ca3af;display:inline-block}
+.sync-dot.online{background:#16a34a}.sync-dot.connecting{background:#eab308}.sync-dot.offline{background:#dc2626}
+.cloud-config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cloud-config-grid label{font-size:12px;font-weight:700}.cloud-config-grid input{width:100%;padding:10px;border:1px solid #d5dbe3;border-radius:9px;margin-top:5px}
+.cloud-code{width:100%;min-height:120px;padding:10px;border:1px solid #d5dbe3;border-radius:9px;font-family:ui-monospace,monospace;font-size:12px}
+@media(max-width:700px){.cloud-config-grid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<div class="app">
+<aside class="side"><div class="brand">◆ PRO POS</div><div class="nav">
+<button class="active" onclick="show('pos',this)">POS</button><button onclick="show('inventory',this)">Inventory</button><button onclick="show('sales',this)">Sales</button><button onclick="show('reports',this)">Reports</button><button onclick="show('settings',this)">Settings</button>
+</div></aside>
+<main>
+<section id="pos" class="section active">
+<div class="top"><div><div class="title">Point of Sale</div>
+<div id="screenBranding-pos" class="screen-branding">
+  <div class="screen-brand-logo" id="screenBrandLogo-pos"></div>
+  <div class="screen-brand-text">
+    <div class="screen-brand-name" id="screenBrandName-pos">Your Business</div>
+    <div class="screen-brand-info" id="screenBrandInfo-pos"></div>
+  </div>
+</div><div class="muted">Fast checkout • USD / KHR • split payments</div></div><div class="pill" id="clock"></div></div>
+<div class="grid"><div class="card"><div class="search"><input id="search" placeholder="Search product, SKU or barcode…" oninput="renderProducts()"><button class="secondary" onclick="openScanner()">📷 Camera Scan</button></div><div id="products" class="products"></div></div>
+<div class="card"><h2 style="margin-top:0">Current Sale</h2><div id="cart"></div><div class="totals"><div class="line"><span>Subtotal</span><b id="subtotal">$0.00</b></div><div class="line"><span>Discount</span><span><input id="discount" type="number" value="0" min="0" step=".01" style="width:100px;padding:7px" oninput="renderCart()"> USD</span></div><div class="line grand"><span>Total</span><b id="total">$0.00</b></div><div class="line"><span class="muted">Total KHR</span><b id="totalKHR">0 ៛</b></div></div>
+<div style="margin-top:16px"><div class="muted">Payment method</div><div class="paygrid" style="margin-top:7px"><button id="pCASH" onclick="setPay('CASH')" class="active">Cash</button><button id="pCARD" onclick="setPay('CARD')">Card</button><button id="pOTHER" onclick="setPay('OTHER')">Other</button></div>
+<div style="margin-top:10px"><label style="font-weight:700;display:block;margin-bottom:7px">Cash Received — USD / KHR</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:800;font-size:18px;z-index:1">$</span><input id="paidUSD" type="number" step=".01" min="0" value="" placeholder="0.00" oninput="renderCart()" style="padding-left:30px;width:100%;box-sizing:border-box"></div><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:800;font-size:18px;z-index:1">៛</span><input id="paidKHR" type="number" step="1" min="0" value="" placeholder="0" oninput="renderCart()" style="padding-left:30px;width:100%;box-sizing:border-box"></div></div></div>
+<div id="paymentSummary" style="margin-top:10px;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc"><div class="line"><span>Total Due</span><b id="payTotalUSD">$0.00</b></div><div class="line"><span>Total Due (KHR)</span><b id="payTotalKHR">0 ៛</b></div><div class="line"><span>Received (USD)</span><b id="payReceivedUSD">$0.00</b></div><div class="line"><span>Received (KHR)</span><b id="payReceivedKHR">0 ៛</b></div><div class="line"><span>Remaining (USD)</span><b id="payRemainingUSD">$0.00</b></div><div class="line"><span>Remaining (KHR)</span><b id="payRemainingKHR">0 ៛</b></div><div class="line"><span>Cash Back / Change (USD)</span><b id="payChangeUSD">$0.00</b></div><div class="line"><span>Cash Back / Change (KHR)</span><b id="payChangeKHR">0 ៛</b></div></div>
+<div id="notComplete" style="display:none;text-align:center;color:#dc2626;font-size:34px;font-weight:900;margin:12px 0">NOT COMPLETE</div>
+<div class="actions"><button class="secondary" onclick="holdSale()">Hold</button><button class="secondary" onclick="resumeSale()">Resume</button><button class="secondary" onclick="clearCart()">Clear</button><button class="success" style="flex:1" onclick="completeSale()">Complete Sale</button></div><button class="secondary" style="width:100%;margin-top:8px" onclick="printLastReceipt()">🖨 Print Last Receipt</button>
+<div id="change" class="muted" style="margin-top:10px"></div></div></div></div>
+</section>
+<section id="inventory" class="section"><div class="top"><div><div class="title">Inventory</div>
+<div id="screenBranding-inventory" class="screen-branding">
+  <div class="screen-brand-logo" id="screenBrandLogo-inventory"></div>
+  <div class="screen-brand-text">
+    <div class="screen-brand-name" id="screenBrandName-inventory">Your Business</div>
+    <div class="screen-brand-info" id="screenBrandInfo-inventory"></div>
+  </div>
+</div><div class="muted">Products and stock control</div></div><button class="primary" onclick="openProduct()">+ Add Product</button></div><div class="card"><table class="table"><thead><tr><th>Product</th><th>SKU</th><th>Price</th><th>Qty</th><th>Min</th><th>Status</th><th></th></tr></thead><tbody id="inventoryBody"></tbody></table></div></section>
+<section id="sales" class="section"><div class="top"><div><div class="title">Sales History</div>
+<div id="screenBranding-sales" class="screen-branding">
+  <div class="screen-brand-logo" id="screenBrandLogo-sales"></div>
+  <div class="screen-brand-text">
+    <div class="screen-brand-name" id="screenBrandName-sales">Your Business</div>
+    <div class="screen-brand-info" id="screenBrandInfo-sales"></div>
+  </div>
+</div><div class="muted">Receipts, returns and refunds</div></div><button class="secondary" onclick="exportCSV()">Export CSV</button></div><div class="card"><table class="table"><thead><tr><th>Receipt</th><th>Date</th><th>Total</th><th>Payment</th><th>Customer</th><th></th></tr></thead><tbody id="salesBody"></tbody></table></div></section>
+<section id="reports" class="section"><div class="title">Reports</div>
+<div id="screenBranding-reports" class="screen-branding">
+  <div class="screen-brand-logo" id="screenBrandLogo-reports"></div>
+  <div class="screen-brand-text">
+    <div class="screen-brand-name" id="screenBrandName-reports">Your Business</div>
+    <div class="screen-brand-info" id="screenBrandInfo-reports"></div>
+  </div>
+</div>
+<div class="grid" style="margin-top:18px">
+  <div class="card"><h3>Daily Sales</h3><div class="grand" id="rToday">$0.00</div><div class="muted" id="rCount">0 sales</div></div>
+  <div class="card"><h3>Weekly Sales</h3><div class="grand" id="rWeek">$0.00</div><div class="muted" id="rWeekCount">0 sales</div></div>
+  <div class="card"><h3>Monthly Sales</h3><div class="grand" id="rMonth">$0.00</div><div class="muted" id="rMonthCount">0 sales</div></div>
+  <div class="card"><h3>Inventory Value</h3><div class="grand" id="rInv">$0.00</div><div class="muted">cost value of current stock</div></div>
+</div>
+<div class="card" style="margin-top:18px"><div class="top"><div><h3 style="margin:0">Report Details</h3><div class="muted">Daily, weekly and monthly sales totals</div></div><button class="secondary" onclick="printReport()">Print Report</button></div><div style="overflow:auto;margin-top:12px"><table class="table"><thead><tr><th>Period</th><th>Sales</th><th>Total</th><th>Average Sale</th></tr></thead><tbody id="reportDetails"></tbody></table></div></div>
+</section>
+<section id="settings" class="section">
+<div class="title">Settings</div>
+<div id="screenBranding-settings" class="screen-branding">
+  <div class="screen-brand-logo" id="screenBrandLogo-settings"></div>
+  <div class="screen-brand-text">
+    <div class="screen-brand-name" id="screenBrandName-settings">Your Business</div>
+    <div class="screen-brand-info" id="screenBrandInfo-settings"></div>
+  </div>
+</div>
+
+
+<div id="globalBrandingLivePreview" class="card" style="margin-top:18px">
+  <h3>Live POS Branding Preview</h3>
+  <p class="muted">Change these controls and see the business name/logo update immediately on every screen.</p>
+  <div class="screen-branding" style="margin-top:12px">
+    <div class="screen-brand-logo" id="settingsLiveLogo"></div>
+    <div class="screen-brand-text">
+      <div class="screen-brand-name" id="settingsLiveName">Your Business</div>
+      <div class="screen-brand-info" id="settingsLiveInfo"></div>
+    </div>
+  </div>
+</div>
+<div class="card" style="margin-top:18px">
+  <h3>Business Information</h3>
+  <p class="muted">These details will appear on the POS screen and printed receipts.</p>
+  <div class="form">
+    <label>Business Name<input id="bizName" type="text" autocomplete="organization" placeholder="Your Business Name" oninput="liveBusinessInfoPreview()"></label>
+    <label>Phone<input id="bizPhone" placeholder="Phone number"></label>
+    <label>Address<input id="bizAddress" placeholder="Business address"></label>
+    <label>City / State / ZIP<input id="bizCity" placeholder="City, State, ZIP"></label>
+    <label class="full">Receipt Message<input id="bizMessage" placeholder="Thank you for your business!"></label>
+    <label class="full">Business Logo
+      <input id="bizLogoFile" type="file" accept="image/*" onchange="loadBusinessLogo(this)">
+      <div id="bizLogoPreview" style="margin-top:8px"></div>
+    </label>
+    <label>POS Logo Size
+      <input id="bizLogoSize" type="range" min="35" max="180" value="58" oninput="previewBrandSize()" onchange="saveBusinessInfo()">
+      <span id="bizLogoSizeValue" class="muted">58 px</span>
+    </label>
+    <label>POS Business Name Size
+      <input id="bizNameSize" type="range" min="14" max="42" value="20" oninput="previewBrandSize()" onchange="saveBusinessInfo()">
+      <span id="bizNameSizeValue" class="muted">20 px</span>
+    </label>
+    <label>POS Business Name Font
+      <select id="bizNameFont" onchange="previewBrandFont();saveBusinessInfo()">
+        <option value="system-ui">Modern</option>
+        <option value="Arial">Arial</option>
+        <option value="Helvetica">Helvetica</option>
+        <option value="Georgia">Georgia</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Garamond">Garamond</option>
+        <option value="Palatino Linotype">Palatino</option>
+        <option value="Bookman Old Style">Bookman</option>
+        <option value="Verdana">Verdana</option>
+        <option value="Tahoma">Tahoma</option>
+        <option value="Trebuchet MS">Trebuchet MS</option>
+        <option value="Arial Black">Arial Black</option>
+        <option value="Impact">Impact</option>
+        <option value="Lucida Console">Lucida Console</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Brush Script MT">Brush Script</option>
+      </select>
+    </label>
+    <label>POS Business Name Style
+      <select id="bizNameWeight" onchange="previewBrandFont();saveBusinessInfo()">
+        <option value="800">Extra Bold</option>
+        <option value="700">Bold</option>
+        <option value="600">Semi Bold</option>
+        <option value="400">Regular</option>
+      </select>
+    </label>
+  </div>
+  <div class="actions" style="margin-top:14px">
+    <button class="primary" onclick="saveBusinessInfo()">Save Business Information</button>
+    <button onclick="clearBusinessLogo()">Remove Logo</button>
+  </div>
+</div>
+
+<div class="card" style="margin-top:18px">
+  <h3>Promotions</h3>
+  <p class="muted">Create one promotion for <b>all items</b> or choose only the products you want on sale. The promotion automatically turns on during the start/end window.</p>
+  <div class="form">
+    <label>Promotion Status<select id="promoOn" onchange="togglePromoFields()"><option value="off">OFF</option><option value="on">ON</option></select></label>
+    <label>Apply Promotion To<select id="promoScope" onchange="syncPromoSelected();renderPromoItems()"><option value="all">All Items</option><option value="selected">Selected Items</option></select></label>
+    <label>Discount %<input id="promoDiscount" type="number" min="0" max="100" step="0.01" value="0"></label>
+    <label>Promotion Starts<input id="promoStart" type="datetime-local"></label>
+    <label>Promotion Ends<input id="promoEnd" type="datetime-local"></label>
+    <div class="full"><b>Select Items</b><div id="promoItems" class="promo-items"></div></div>
+  </div>
+  <div id="promoStatus" class="promo-status muted"></div>
+  <div class="actions" style="margin-top:12px"><button class="primary" onclick="savePromotion()">Save Promotion</button><button class="secondary" onclick="clearPromotion()">Clear Promotion</button></div>
+</div>
+
+<div class="card" style="margin-top:18px">
+  <h3>Special Item Promotions</h3>
+  <p class="muted">Scan an item to give it a different discount. Items listed here are excluded from the general promotion, including an "All Items" promotion.</p>
+  <div class="promo-exception-scan">
+    <input id="promoExceptionCode" placeholder="Scan or enter barcode / SKU" onkeydown="if(event.key==='Enter')lookupPromoException()">
+    <button class="primary" onclick="openPromoExceptionScanner()">📷 Scan Item</button>
+    <button class="secondary" onclick="lookupPromoException()">Find Item</button>
+  </div>
+  <div id="promoExceptionStatus" class="promo-exception-note muted">No special item promotions set.</div>
+  <div id="promoExceptionList" class="promo-exception-list"></div>
+</div>
+
+
+<div class="card" style="margin-top:18px">
+  <h3>Use BeGirl9 on Another Device</h3>
+  <p class="muted">The HTML file is standalone. Copy it to another phone, tablet, Windows PC, or Mac. Your sales and settings are stored separately on each device, so use Backup / Restore to move your data.</p>
+  <div class="portable-transfer">
+    <div class="transfer-note"><b>Step 1 — On this device</b><br>Tap <b>Backup Data</b> to download one backup file containing your products, sales, held sales, business branding, currency, promotions, and last receipt.</div>
+    <div class="transfer-note"><b>Step 2 — On the other device</b><br>Open the same BeGirl9 HTML file, go to <b>Settings</b>, choose <b>Restore Data</b>, and select the backup file.</div>
+  </div>
+  <div class="transfer-actions">
+    <button class="primary" onclick="backupBeGirl9Data()">⬇️ Backup Data</button>
+    <button class="secondary" onclick="document.getElementById('restoreDataFile').click()">⬆️ Restore Data</button>
+  </div>
+  <input id="restoreDataFile" type="file" accept="application/json,.json" style="display:none" onchange="restoreBeGirl9Data(this)">
+  <div id="transferStatus" class="muted" style="margin-top:10px"></div>
+</div>
+
+<div class="card" style="margin-top:18px">
+  <h3>Cloud Sync — Use BeGirl9 on Multiple Devices</h3>
+  <p class="muted">Connect the same Firebase account on every phone, tablet, Windows PC, or Mac. Changes to products, sales, inventory, business settings, promotions, and receipts will sync through the cloud.</p>
+  <div class="cloud-config-grid" style="margin-top:12px">
+    <label>Firebase API Key<input id="fbApiKey" placeholder="AIza..."></label>
+    <label>Firebase Auth Domain<input id="fbAuthDomain" placeholder="your-project.firebaseapp.com"></label>
+    <label>Firebase Database URL<input id="fbDatabaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com"></label>
+    <label>Firebase Project ID<input id="fbProjectId" placeholder="your-project-id"></label>
+    <label>Firebase Storage Bucket<input id="fbStorageBucket" placeholder="your-project.appspot.com"></label>
+    <label>Firebase Messaging Sender ID<input id="fbMessagingSenderId" placeholder="1234567890"></label>
+    <label>Firebase App ID<input id="fbAppId" placeholder="1:1234567890:web:..."></label>
+    <label>Sync Account Email<input id="fbEmail" type="email" placeholder="same email on every device"></label>
+    <label>Sync Account Password<input id="fbPassword" type="password" placeholder="used only to sign in"></label>
+  </div>
+  <div class="actions" style="margin-top:12px">
+    <button class="primary" onclick="saveCloudConfigAndConnect()">☁ Connect & Save</button>
+    <button class="secondary" onclick="createCloudAccount()">Create Sync Account</button>
+    <button class="secondary" onclick="cloudSignOut()">Sign Out</button>
+  </div>
+  <div class="cloud-sync-status"><span id="cloudSyncDot" class="sync-dot"></span><b id="cloudSyncText">Cloud Sync not connected</b><span id="cloudSyncTime" class="muted"></span></div>
+  <div class="muted" style="margin-top:10px">One-time Firebase setup: create a Firebase project, add a Web App, create a Realtime Database, and enable Email/Password sign-in. Then paste the Web App configuration above. Firebase uses Realtime Database listeners for live updates. Do not make the database public.</div>
+  <details style="margin-top:12px"><summary><b>Recommended Realtime Database Rules</b></summary><textarea class="cloud-code" readonly>{
+  "rules": {
+    "posData": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}</textarea></details>
+  <div id="cloudSyncError" class="muted" style="margin-top:8px"></div>
+</div>
+
+<div class="card" style="margin-top:18px">
+  <h3>Install BeGirl9 as an App</h3>
+  <p class="muted">Install BeGirl9 on your phone, tablet, Windows PC, or Mac so it opens from an app icon like a regular application.</p>
+  <div class="actions" style="margin-top:12px">
+    <button id="installAppBtn" class="primary" onclick="installBeGirl9App()" style="display:none">📲 Install BeGirl9 App</button>
+  </div>
+  <div id="installAppStatus" class="muted" style="margin-top:10px">App installation is available when BeGirl9 is opened from a supported HTTPS web address.</div>
+</div>
+
+<div class="card" style="margin-top:18px"><h3>Printer Settings</h3><div class="form"><label>Automatic Receipt Printing<select id="printerAuto" onchange="savePrinterSettings()"><option value="off">OFF</option><option value="on">ON</option></select></label><label>Receipt Printer<select id="printerType" onchange="savePrinterSettings()"><option value="system">System / Default Printer</option><option value="58mm">58mm Receipt Printer</option><option value="80mm">80mm Receipt Printer</option></select></label></div><p class="muted" style="margin-top:8px">Safari will use the system print dialog. The selected receipt format and automatic printing setting are saved on this device.</p></div>
+
+<div class="card" style="margin-top:18px">
+  <h3>Currency</h3>
+  <label>KHR per USD <input id="rate" type="number" value="4100" min="1" step="1" onchange="saveRate()" style="padding:10px;width:160px;border:1px solid #ddd;border-radius:8px"></label>
+</div>
+</section>
+</main></div>
+
+
+
+<div id="photoScanner" class="modal">
+  <div class="modalbox" style="max-width:820px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Take Product Picture</h2>
+      <button class="secondary" onclick="closeProductPhotoCamera()">Close</button>
+    </div>
+    <p class="muted">Use the camera to take a picture of this product. The picture will be saved with the inventory item.</p>
+    <div style="position:relative;background:#111;border-radius:14px;overflow:hidden">
+      <video id="photoVideo" autoplay muted playsinline style="width:100%;display:block;max-height:65vh;object-fit:contain"></video>
+      <div style="position:absolute;inset:8%;border:2px dashed white;border-radius:14px;pointer-events:none"></div>
+    </div>
+    <div class="actions" style="margin-top:12px">
+      <button class="primary" onclick="captureProductPhoto()">📸 Take Picture</button>
+      <button class="secondary" onclick="switchProductPhotoCamera()">🔄 Switch Camera</button>
+      <button class="secondary" onclick="uploadProductPhoto()">🖼️ Choose Picture</button>
+    </div>
+    <canvas id="photoCanvas" style="display:none"></canvas>
+    <div id="photoStatus" class="muted" style="margin-top:8px"></div>
+  </div>
+</div>
+<div id="invScanner" class="modal">
+  <div class="modalbox" style="max-width:720px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Scan Product Barcode</h2>
+      <button class="secondary" onclick="closeInventoryScanner()">Close</button>
+    </div>
+    <p class="muted">Scan the barcode/QR code on the product. The code will be placed into the Barcode / QR field.</p>
+    <div style="position:relative;background:#111;border-radius:14px;overflow:hidden;min-height:260px">
+      <video id="invCameraVideo" autoplay muted playsinline style="width:100%;display:block"></video>
+      <div style="position:absolute;inset:20% 10%;border:3px solid white;border-radius:12px;pointer-events:none"></div>
+    </div>
+    <div id="invScanStatus" class="muted" style="margin-top:10px">Starting camera…</div>
+    <div class="actions" style="margin-top:12px">
+      <button class="secondary" onclick="switchInventoryCamera()">🔄 Switch Camera</button>
+      <button class="secondary" onclick="manualInventoryScan()">⌨️ Enter Code</button>
+    </div>
+  </div>
+</div>
+<div id="promoExceptionScanner" class="modal">
+  <div class="modalbox" style="max-width:720px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Scan Item for Special Discount</h2>
+      <button class="secondary" onclick="closePromoExceptionScanner()">Close</button>
+    </div>
+    <p class="muted">Scan a product barcode or QR code. The matching item will be added to Special Item Promotions.</p>
+    <div style="position:relative;background:#111;border-radius:14px;overflow:hidden;min-height:260px">
+      <video id="promoExceptionCameraVideo" autoplay muted playsinline style="width:100%;display:block"></video>
+      <div style="position:absolute;inset:20% 10%;border:3px solid white;border-radius:12px;pointer-events:none"></div>
+    </div>
+    <div id="promoExceptionScanStatus" class="muted" style="margin-top:10px">Starting camera…</div>
+    <div class="actions" style="margin-top:12px">
+      <button class="secondary" onclick="switchPromoExceptionCamera()">🔄 Switch Camera</button>
+      <button class="secondary" onclick="manualPromoExceptionScan()">⌨️ Enter Code</button>
+    </div>
+  </div>
+</div>
+<div id="scanner" class="modal">
+  <div class="modalbox" style="max-width:720px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2 style="margin:0">Camera Barcode / QR Scanner</h2>
+      <button class="secondary" onclick="closeScanner()">Close</button>
+    </div>
+    <p class="muted">Point the camera at a barcode or QR code. The scanner will automatically detect it.</p>
+    <div style="position:relative;background:#111;border-radius:14px;overflow:hidden;min-height:260px">
+      <video id="cameraVideo" autoplay muted playsinline style="width:100%;display:block"></video>
+      <div style="position:absolute;inset:20% 10%;border:3px solid white;border-radius:12px;pointer-events:none"></div>
+    </div>
+    <div id="scanStatus" class="muted" style="margin-top:10px">Starting camera…</div>
+    <div class="actions" style="margin-top:12px">
+      <button class="secondary" onclick="switchCamera()">🔄 Switch Camera</button>
+      <button class="secondary" onclick="manualScan()">⌨️ Enter Code</button>
+    </div>
+  </div>
+</div>
+<div id="modal" class="modal"><div class="modalbox"><h2>Add Product</h2><div class="form"><label>Product name<input id="pn"></label><label>SKU<input id="psku"></label><label>Barcode / QR<div style="display:flex;gap:7px"><input id="pbar" style="flex:1"><button type="button" class="secondary" onclick="openInventoryScanner()">📷 Scan</button></div></label><label>Category<input id="pcat"></label>
+<label class="full">Product Picture
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input id="pimg" type="file" accept="image/*" capture="environment" onchange="previewProductImage(this)">
+    <button type="button" class="secondary" onclick="openProductPhotoCamera()">📷 Take Picture</button>
+  </div>
+  <div id="productImagePreview" style="margin-top:8px"></div>
+</label><label>Cost USD<input id="pcost" type="number" step=".01"></label><label>Selling price USD<input id="pprice" type="number" step=".01"></label><label>Sale Discount %<input id="psalediscount" type="number" min="0" max="100" step="0.01" value="0"></label><label>Sale Status<select id="psaleon"><option value="off">OFF</option><option value="on">ON</option></select></label><label>Promotion Starts<input id="psalestart" type="datetime-local"></label><label>Promotion Ends<input id="psaleend" type="datetime-local"></label><label>Quantity<input id="pqty" type="number" step="1"></label><label>Minimum stock<input id="pmin" type="number" step="1" value="5"></label></div><div class="actions" style="margin-top:15px"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveProduct()">Save Product</button></div></div></div>
+<script>
+const key='propos_products_v1', skey='propos_sales_v1', hkey='propos_held_v1';
+let products=JSON.parse(localStorage.getItem(key)||'null')||[
+{id:1,name:'Coca-Cola',sku:'COKE001',bar:'049000028904',cat:'Drinks',cost:0.55,price:1.25,qty:24,min:6},
+{id:2,name:'Water',sku:'WATER001',bar:'012345678901',cat:'Drinks',cost:.25,price:1,qty:30,min:8},
+{id:3,name:'Potato Chips',sku:'CHIP001',bar:'012345678902',cat:'Snacks',cost:.6,price:1.75,qty:15,min:5},
+{id:4,name:'Energy Drink',sku:'ENERGY001',bar:'012345678903',cat:'Drinks',cost:1,price:2.5,qty:10,min:4}
+];products=products.map(p=>({...p,saleDiscount:p.saleDiscount||0,saleOn:p.saleOn||'off',saleStart:p.saleStart||'',saleEnd:p.saleEnd||'',promoExcluded:!!p.promoExcluded,specialPromoOn:p.specialPromoOn||'off',specialPromoDiscount:p.specialPromoDiscount||0}));let promotion=JSON.parse(localStorage.getItem('propos_promotion_v1')||'null')||{on:'off',scope:'all',discount:0,start:'',end:'',items:[]};let sales=JSON.parse(localStorage.getItem(skey)||'[]'),held=JSON.parse(localStorage.getItem(hkey)||'[]'),cart=[],pay='CASH',rate=+(localStorage.getItem('rate')||4100);
+document.getElementById('rate').value=rate;
+function money(n){return '$'+Number(n||0).toFixed(2)}
+function khr(n){return Math.round(Number(n||0)*rate).toLocaleString()+' ៛'}
+function dualMoney(n){return money(n)+' • '+khr(n)}
+function promotionActive(){
+  if(!promotion || promotion.on!=='on' || !(Number(promotion.discount)>0)) return false;
+  const now=Date.now(), start=promotion.start?new Date(promotion.start).getTime():-Infinity, end=promotion.end?new Date(promotion.end).getTime():Infinity;
+  return now>=start && now<=end;
+}
+function specialPromoActive(p){
+  return !!(p && p.promoExcluded===true && p.specialPromoOn==='on' && Number(p.specialPromoDiscount)>0);
+}
+function promotionApplies(p){
+  if(!promotionActive() || !p || p.promoExcluded===true) return false;
+  return promotion.scope==='all' || (promotion.items||[]).map(Number).includes(Number(p.id));
+}
+function isItemSaleActive(p){
+  if(!p || p.saleOn!=='on' || !(Number(p.saleDiscount)>0)) return false;
+  const now=Date.now(), start=p.saleStart?new Date(p.saleStart).getTime():-Infinity, end=p.saleEnd?new Date(p.saleEnd).getTime():Infinity;
+  return now>=start && now<=end;
+}
+function isSaleActive(p){return specialPromoActive(p)||isItemSaleActive(p)||promotionApplies(p)}
+function activeDiscount(p){
+  if(specialPromoActive(p)) return Number(p.specialPromoDiscount);
+  if(isItemSaleActive(p)) return Number(p.saleDiscount||0);
+  return promotionApplies(p)?Number(promotion.discount):0;
+}
+function salePrice(p){return isSaleActive(p)?Math.max(0,p.price*(1-activeDiscount(p)/100)):p.price}
+function saleLabel(p){return isSaleActive(p)?`<span class="sale-badge">SALE ${activeDiscount(p).toFixed(2).replace(/\.00$/,'')}% OFF</span>`:''}
+function show(id,btn){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='inventory')renderInventory();if(id==='sales')renderSales();if(id==='reports')renderReports();if(id==='settings'){loadPromotionSettings();renderSpecialPromoItems()}}
+function renderProducts(){let q=document.getElementById('search').value.toLowerCase();let a=products.filter(p=>(p.name+p.sku+p.bar+p.cat).toLowerCase().includes(q));document.getElementById('products').innerHTML=a.map(p=>{let sp=salePrice(p);return `<button class="product" onclick="add(${p.id})"><b>${esc(p.name)} ${saleLabel(p)}</b><span class="muted">${esc(p.sku)}</span><div class="price">${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span>`:''}${money(sp)}</div><span class="muted">${p.qty} in stock</span></button>`}).join('')||'<div class="muted">No products found.</div>'}
+function add(id){let p=products.find(x=>x.id===id),c=cart.find(x=>x.id===id);if(!p||p.qty<1)return alert('Out of stock');if(c)c.n++;else cart.push({id,n:1});renderCart()}
+function setPay(method){pay=method;document.querySelectorAll('.paygrid button').forEach(b=>b.classList.remove('active'));const b=document.getElementById('p'+method);if(b)b.classList.add('active');renderCart()}
+function renderCart(){let sub=cart.reduce((s,c)=>s+salePrice(products.find(p=>p.id===c.id))*c.n,0),d=Math.max(0,+document.getElementById('discount').value||0),t=Math.max(0,sub-d),totalKHR=Math.round(t*rate);document.getElementById('subtotal').textContent=money(sub);document.getElementById('total').textContent=money(t);document.getElementById('totalKHR').textContent=khr(t);document.getElementById('cart').innerHTML=cart.map(c=>{let p=products.find(x=>x.id===c.id),sp=salePrice(p);return `<div class="cartrow"><div><b>${esc(p.name)} ${saleLabel(p)}</b><div class="muted">${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> `:''}${money(sp)} each</div></div><div class="qty"><button onclick="chg(${p.id},-1)">−</button><span>${c.n}</span><button onclick="chg(${p.id},1)">+</button></div><b>${money(sp*c.n)}</b><button class="danger" onclick="del(${p.id})">×</button></div>`}).join('')||'<div class="muted">Cart is empty.</div>';let usd=+document.getElementById('paidUSD').value||0,khrPaid=+document.getElementById('paidKHR').value||0,receivedUSD=usd+khrPaid/rate,receivedKHR=Math.round(usd*rate)+khrPaid,remUSD=Math.max(0,t-receivedUSD),remKHR=Math.max(0,totalKHR-receivedKHR),changeUSD=Math.max(0,receivedUSD-t),changeKHR=Math.max(0,receivedKHR-totalKHR),complete=remUSD<0.000001&&remKHR===0&&!((receivedUSD-t)>0.000001||(receivedKHR-totalKHR)>0);['payTotalUSD','payReceivedUSD','payRemainingUSD','payChangeUSD'].forEach((id,i)=>{document.getElementById(id).textContent=money([t,receivedUSD,remUSD,changeUSD][i])});['payTotalKHR','payReceivedKHR','payRemainingKHR','payChangeKHR'].forEach((id,i)=>{document.getElementById(id).textContent=[totalKHR,receivedKHR,remKHR,changeKHR][i].toLocaleString()+' ៛'});const nc=document.getElementById('notComplete');if(nc)nc.style.display=(cart.length&&(remUSD>0.000001||remKHR>0))?'block':'none';document.getElementById('change').textContent=complete?'Paid in full':(changeUSD>0||changeKHR>0?`Cash Back: ${money(changeUSD)} • ${changeKHR.toLocaleString()} ៛`:`Remaining: ${money(remUSD)} • ${remKHR.toLocaleString()} ៛`)}
+function chg(id,d){let c=cart.find(x=>x.id===id),p=products.find(x=>x.id===id);c.n=Math.max(1,Math.min(c.n+d,p.qty));renderCart()}function del(id){cart=cart.filter(x=>x.id!==id);renderCart()}function clearCart(){cart=[];document.getElementById('discount').value=0;document.getElementById('paidUSD').value='';document.getElementById('paidKHR').value='';save();renderCart()}
+
+function completeSale(){if(!cart.length)return alert('Cart is empty');let sub=cart.reduce((sum,c)=>sum+salePrice(products.find(p=>p.id===c.id))*c.n,0),d=Math.max(0,+document.getElementById('discount').value||0),total=Math.max(0,sub-d),paidUSD=+document.getElementById('paidUSD').value||0,paidKHR=+document.getElementById('paidKHR').value||0,receivedUSD=paidUSD+paidKHR/rate,totalKHR=Math.round(total*rate),receivedKHR=Math.round(paidUSD*rate)+paidKHR,remainingUSD=Math.max(0,total-receivedUSD),remainingKHR=Math.max(0,totalKHR-receivedKHR),changeUSD=Math.max(0,receivedUSD-total),changeKHR=Math.max(0,receivedKHR-totalKHR);if(pay==='CASH'){if(remainingUSD>0.000001||remainingKHR>0)return alert('NOT COMPLETE — there is still a remaining balance.');if(changeUSD>0.000001||changeKHR>0){if(!confirm(`Did you give the customer the change back?\n\nChange: ${money(changeUSD)} • ${changeKHR.toLocaleString()} ៛`))return;}}else if(pay==='CARD'||pay==='OTHER'){if(Math.abs(receivedUSD-total)>0.000001)return alert('NOT COMPLETE — there is still a remaining balance.')}const items=cart.map(c=>({id:c.id,n:c.n,unitPrice:salePrice(products.find(x=>x.id===c.id))}));for(let c of cart){let p=products.find(x=>x.id===c.id);if(p)p.qty-=c.n}let s={id:'R'+Date.now().toString().slice(-8),date:new Date().toISOString(),items,total,subtotal:sub,discount:d,payment:pay,paid:receivedUSD};sales.unshift(s);localStorage.setItem('propos_last_receipt_v1',JSON.stringify(s));save();clearCart();renderProducts();renderReports();alert('Sale completed. Receipt '+s.id);if(getPrinterSettings().autoPrint)printReceipt(s)}
+
+function holdSale(){if(!cart.length)return;held.push({cart,discount:document.getElementById('discount').value,customer:document.getElementById('customer').value});cart=[];save();renderCart();alert('Sale held.')}
+function resumeSale(){if(!held.length)return alert('No held sales');let h=held.pop();cart=h.cart;document.getElementById('discount').value=h.discount||0;document.getElementById('customer').value=h.customer||'';save();renderCart()}
+function renderSpecialPromoItems(){
+  const wrap=document.getElementById('promoExceptionList'); if(!wrap)return;
+  const items=products.filter(p=>p.promoExcluded===true);
+  wrap.innerHTML=items.map(p=>`<div class="promo-exception">
+    <div class="promo-exception-head"><div><b>${esc(p.name)}</b> <span class="promo-exception-badge">EXCLUDED</span><div class="muted">SKU: ${esc(p.sku)} • Barcode: ${esc(p.bar||'—')}</div></div><button class="danger" onclick="clearSpecialPromo(${p.id})">Remove</button></div>
+    <div class="promo-exception-controls">
+      <label>Status<select id="spOn-${p.id}"><option value="off" ${p.specialPromoOn!=='on'?'selected':''}>OFF</option><option value="on" ${p.specialPromoOn==='on'?'selected':''}>ON</option></select></label>
+      <label>Item Discount %<input id="spDiscount-${p.id}" type="number" min="0" max="100" step="0.01" value="${Number(p.specialPromoDiscount||0)}"></label>
+      <button class="primary" onclick="saveSpecialPromo(${p.id})">Save</button>
+    </div>
+    <div class="muted" style="margin-top:7px">${p.specialPromoOn==='on' && Number(p.specialPromoDiscount)>0 ? 'This item uses its own discount and does not receive the general promotion.' : 'This item is excluded from the general promotion. Turn ON and set a discount to put the special discount on.'}</div>
+  </div>`).join('') || '<div class="promo-exception-empty">Scan an item to add a special discount or exclusion.</div>';
+  const active=items.filter(p=>p.specialPromoOn==='on'&&Number(p.specialPromoDiscount)>0).length;
+  const status=document.getElementById('promoExceptionStatus');
+  if(status)status.textContent=items.length?`${items.length} excluded item${items.length===1?'':'s'} • ${active} special discount${active===1?'':'s'} ON`:'No special item promotions set.';
+}
+function lookupPromoException(value){
+  const code=(value||document.getElementById('promoExceptionCode')?.value||'').trim();
+  if(!code)return alert('Scan or enter a barcode / SKU.');
+  const p=products.find(x=>String(x.sku||'')===code || String(x.bar||'')===code);
+  const status=document.getElementById('promoExceptionStatus');
+  if(!p){if(status)status.textContent='No product found for '+code+'. Add the barcode/SKU in Inventory first.';return false;}
+  p.promoExcluded=true;
+  p.specialPromoOn=p.specialPromoOn||'off';
+  p.specialPromoDiscount=Number(p.specialPromoDiscount||0);
+  save();
+  const input=document.getElementById('promoExceptionCode'); if(input)input.value='';
+  renderSpecialPromoItems();renderProducts();renderInventory();renderCart();renderSales();
+  if(status)status.textContent=`${p.name} is excluded from the general promotion. Set its special discount below.`;
+  return true;
+}
+function saveSpecialPromo(id){
+  const p=products.find(x=>x.id===id); if(!p)return;
+  const on=document.getElementById('spOn-'+id)?.value||'off';
+  const discount=Math.max(0,Math.min(100,+document.getElementById('spDiscount-'+id)?.value||0));
+  if(on==='on' && discount<=0)return alert('Enter a discount greater than 0% when Status is ON.');
+  p.promoExcluded=true; p.specialPromoOn=on; p.specialPromoDiscount=discount;
+  save();renderSpecialPromoItems();renderProducts();renderInventory();renderCart();renderSales();
+}
+function clearSpecialPromo(id){
+  const p=products.find(x=>x.id===id); if(!p)return;
+  p.promoExcluded=false; p.specialPromoOn='off'; p.specialPromoDiscount=0;
+  save();renderSpecialPromoItems();renderProducts();renderInventory();renderCart();renderSales();
+}
+
+let promoExceptionStream=null,promoExceptionDetector=null,promoExceptionTimer=null,promoExceptionFacing='environment';
+async function openPromoExceptionScanner(){
+  document.getElementById('promoExceptionScanner').classList.add('show');
+  await startPromoExceptionCamera();
+}
+function closePromoExceptionScanner(){
+  document.getElementById('promoExceptionScanner').classList.remove('show');
+  stopPromoExceptionCamera();
+}
+function stopPromoExceptionCamera(){
+  if(promoExceptionTimer){clearTimeout(promoExceptionTimer);promoExceptionTimer=null}
+  if(promoExceptionStream){promoExceptionStream.getTracks().forEach(t=>t.stop());promoExceptionStream=null}
+  const v=document.getElementById('promoExceptionCameraVideo');
+  if(v){v.pause();v.srcObject=null}
+}
+async function startPromoExceptionCamera(){
+  stopPromoExceptionCamera();
+  const status=document.getElementById('promoExceptionScanStatus');
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){status.textContent='Camera access is unavailable. Use Enter Code or a USB/Bluetooth scanner.';return}
+  try{
+    promoExceptionStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:promoExceptionFacing},width:{ideal:1280},height:{ideal:720}},audio:false});
+    const v=document.getElementById('promoExceptionCameraVideo');v.srcObject=promoExceptionStream;await v.play();
+    if('BarcodeDetector' in window){
+      let formats;try{formats=await BarcodeDetector.getSupportedFormats()}catch(e){}
+      promoExceptionDetector=new BarcodeDetector(formats&&formats.length?{formats}:undefined);
+      status.textContent='Camera ready — point at the item barcode.';
+      detectPromoExceptionLoop();
+    }else{status.textContent='Automatic barcode detection is not supported here. Use Enter Code or Chrome on Android.'}
+  }catch(e){status.textContent='Camera permission was blocked or unavailable. Use Enter Code instead.'}
+}
+async function detectPromoExceptionLoop(){
+  if(!promoExceptionDetector||!promoExceptionStream)return;
+  const v=document.getElementById('promoExceptionCameraVideo');
+  try{
+    if(v.readyState>=2){
+      const codes=await promoExceptionDetector.detect(v);
+      if(codes&&codes.length){const value=(codes[0].rawValue||'').trim();if(value){usePromoExceptionCode(value);return}}
+    }
+  }catch(e){}
+  promoExceptionTimer=setTimeout(detectPromoExceptionLoop,180);
+}
+function usePromoExceptionCode(value){
+  document.getElementById('promoExceptionScanStatus').textContent='Detected: '+value;
+  const ok=lookupPromoException(value);
+  if(ok)setTimeout(closePromoExceptionScanner,450);
+}
+async function switchPromoExceptionCamera(){promoExceptionFacing=promoExceptionFacing==='environment'?'user':'environment';await startPromoExceptionCamera()}
+function manualPromoExceptionScan(){
+  const v=prompt('Enter or scan barcode / SKU:');
+  if(v)usePromoExceptionCode(v.trim());
+}
+
+function renderPromoItems(){
+  const wrap=document.getElementById('promoItems'); if(!wrap)return;
+  const selected=new Set((promotion.items||[]).map(Number));
+  const scope=document.getElementById('promoScope')?.value||promotion.scope||'all';
+  wrap.innerHTML=products.map(p=>`<label class="promo-item"><input type="checkbox" value="${p.id}" ${scope==='selected'&&selected.has(Number(p.id))?'checked':''} ${scope==='all'?'disabled':''} onchange="syncPromoSelected()"><span>${esc(p.name)} <span class="muted">${esc(p.sku)}</span></span></label>`).join('')||'<span class="muted">No products available.</span>';
+  document.getElementById('promoStatus').textContent=scope==='all'?'This promotion applies to every inventory item.':'Select the products that should receive this promotion.';
+}
+function syncPromoSelected(){promotion.items=[...document.querySelectorAll('#promoItems input:checked')].map(x=>Number(x.value));}
+function loadPromotionSettings(){
+  document.getElementById('promoOn').value=promotion.on||'off';document.getElementById('promoScope').value=promotion.scope||'all';document.getElementById('promoDiscount').value=promotion.discount||0;document.getElementById('promoStart').value=promotion.start||'';document.getElementById('promoEnd').value=promotion.end||'';renderPromoItems();togglePromoFields();
+}
+function togglePromoFields(){const on=document.getElementById('promoOn').value==='on';['promoScope','promoDiscount','promoStart','promoEnd'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=!on});renderPromoItems();}
+function savePromotion(){
+  promotion={on:document.getElementById('promoOn').value,scope:document.getElementById('promoScope').value,discount:Math.max(0,Math.min(100,+document.getElementById('promoDiscount').value||0)),start:document.getElementById('promoStart').value,end:document.getElementById('promoEnd').value,items:promotion.items||[]};
+  syncPromoSelected();
+  if(promotion.scope==='selected'&&!promotion.items.length)return alert('Select at least one item for a selected-item promotion.');
+  if(promotion.start&&promotion.end&&new Date(promotion.end)<=new Date(promotion.start))return alert('Promotion end must be after the start.');
+  localStorage.setItem('propos_promotion_v1',JSON.stringify(promotion));
+  renderPromoItems();renderSpecialPromoItems();renderProducts();renderInventory();renderCart();renderSales();renderReports();alert('Promotion saved.');
+}
+function clearPromotion(){promotion={on:'off',scope:'all',discount:0,start:'',end:'',items:[]};localStorage.setItem('propos_promotion_v1',JSON.stringify(promotion));loadPromotionSettings();renderSpecialPromoItems();renderProducts();renderInventory();renderCart();alert('Promotion turned OFF and cleared.');}
+
+function renderInventory(){document.getElementById('inventoryBody').innerHTML=products.map(p=>`<tr><td>${p.img?`<img src="${p.img}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:8px">`:''}<b>${esc(p.name)}</b> ${saleLabel(p)}<div class="muted">${esc(p.cat)}</div></td><td>${esc(p.sku)}</td><td>${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> ${money(salePrice(p))}`:money(p.price)}<div class="muted">${dualMoney(salePrice(p))}</div></td><td>${p.qty}</td><td>${p.min}</td><td class="${p.qty<=p.min?'low':''}">${p.qty<=p.min?'LOW':'OK'}</td><td><button class="secondary" onclick="editSale(${p.id})">Sale</button> <button class="secondary" onclick="restock(${p.id})">+ Stock</button> <button class="danger" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('')}
+function editSale(id){const p=products.find(x=>x.id===id);if(!p)return;pn.value=p.name;psku.value=p.sku;pbar.value=p.bar;pcat.value=p.cat;pcost.value=p.cost;pprice.value=p.price;pqty.value=p.qty;pmin.value=p.min;psalediscount.value=p.saleDiscount||0;psaleon.value=p.saleOn||'off';psalestart.value=p.saleStart||'';psaleend.value=p.saleEnd||'';window.editingProductId=id;window.pendingProductImage=p.img||'';document.getElementById('productImagePreview').innerHTML=p.img?`<img src="${p.img}" style="max-width:180px;max-height:100px;border-radius:8px">`:'';document.getElementById('modal').classList.add('show')}
+
+function deleteProduct(id){
+  const p=products.find(x=>x.id===id);
+  if(!p)return;
+  const used=sales.some(s=>s.items && s.items.some(i=>i.id===id));
+  const msg=used
+    ? `Delete "${p.name}" from current inventory? Its past sales records will remain, but the product will no longer be available for new sales.`
+    : `Delete "${p.name}" from inventory? This cannot be undone.`;
+  if(!confirm(msg))return;
+  products=products.filter(x=>x.id!==id);
+  cart=cart.filter(x=>x.id!==id);
+  save();
+  renderInventory();
+  renderProducts();
+  renderCart();
+  alert('Product deleted.');
+}
+
+function restock(id){let n=prompt('Add stock quantity:','10');if(n&&+n>0){products.find(p=>p.id===id).qty+=+n;save();renderInventory();renderProducts()}}
+function openProduct(){window.editingProductId=null;window.pendingProductImage='';document.getElementById('productImagePreview').innerHTML='';document.getElementById('pimg').value='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');psalediscount.value=0;psaleon.value='off';psalestart.value='';psaleend.value='';document.getElementById('modal').classList.add('show')}function closeModal(){document.getElementById('modal').classList.remove('show')}
+function saveProduct(){let old=window.editingProductId?products.find(x=>x.id===window.editingProductId):null;let p={id:window.editingProductId||Date.now(),name:pn.value.trim(),sku:psku.value.trim(),bar:pbar.value.trim(),cat:pcat.value.trim(),cost:+pcost.value||0,price:+pprice.value||0,qty:+pqty.value||0,min:+pmin.value||0,img:window.pendingProductImage||'',saleDiscount:Math.max(0,Math.min(100,+psalediscount.value||0)),saleOn:psaleon.value,saleStart:psalestart.value,saleEnd:psaleend.value,promoExcluded:old?.promoExcluded||false,specialPromoOn:old?.specialPromoOn||'off',specialPromoDiscount:old?.specialPromoDiscount||0};if(!p.name||!p.sku)return alert('Product name and SKU are required');let idx=products.findIndex(x=>x.id===p.id);if(idx>=0)products[idx]=p;else products.push(p);save();closeModal();window.pendingProductImage='';window.editingProductId=null;document.getElementById('productImagePreview').innerHTML='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');renderInventory();renderProducts()}
+function getSaleHistoryCode(){return localStorage.getItem('propos_sale_history_code_v1')||'1234'}
+function requireSaleHistoryCode(action){const code=prompt('4-digit code required to '+action+':');if(code===null)return false;if(!/^\d{4}$/.test(code)||code!==getSaleHistoryCode()){alert('Incorrect 4-digit code. No changes were made.');return false}return true}
+function renderSales(){document.getElementById('salesBody').innerHTML=sales.map(s=>`<tr><td>${s.id}</td><td>${new Date(s.date).toLocaleString()}</td><td>${dualMoney(s.total)}</td><td>${s.payment}</td><td>${esc(s.customer||'')}</td><td><button class="danger" onclick="refund('${s.id}')">Refund</button></td></tr>`).join('')||'<tr><td colspan="6">No sales yet.</td></tr>'}
+function refund(id){if(!requireSaleHistoryCode('change sale history'))return;let s=sales.find(x=>x.id===id);if(!s||!confirm('Refund this sale and restore inventory?'))return;s.items.forEach(c=>{let p=products.find(x=>x.id===c.id);if(p)p.qty+=c.n});sales=sales.filter(x=>x.id!==id);save();renderSales();renderProducts();alert('Refund completed.')}
+function periodSales(kind){
+  const now=new Date();
+  let from=new Date(now);
+  if(kind==='day'){from.setHours(0,0,0,0)}
+  if(kind==='week'){const day=(now.getDay()+6)%7;from.setDate(now.getDate()-day);from.setHours(0,0,0,0)}
+  if(kind==='month'){from=new Date(now.getFullYear(),now.getMonth(),1)}
+  return sales.filter(s=>new Date(s.date)>=from && new Date(s.date)<=now);
+}
+function reportTotal(a){return a.reduce((x,s)=>x+(+s.total||0),0)}
+function renderReports(){
+  const day=periodSales('day'),week=periodSales('week'),month=periodSales('month');
+  document.getElementById('rToday').innerHTML=money(reportTotal(day))+'<div class="muted">'+khr(reportTotal(day))+'</div>';
+  document.getElementById('rCount').textContent=day.length+' sales';
+  document.getElementById('rWeek').innerHTML=money(reportTotal(week))+'<div class="muted">'+khr(reportTotal(week))+'</div>';
+  document.getElementById('rWeekCount').textContent=week.length+' sales';
+  document.getElementById('rMonth').innerHTML=money(reportTotal(month))+'<div class="muted">'+khr(reportTotal(month))+'</div>';
+  document.getElementById('rMonthCount').textContent=month.length+' sales';
+  const invTotal=products.reduce((x,p)=>x+p.cost*p.qty,0);document.getElementById('rInv').innerHTML=money(invTotal)+'<div class="muted">'+khr(invTotal)+'</div>';
+  const avg=a=>a.length?money(reportTotal(a)/a.length):money(0);
+  document.getElementById('reportDetails').innerHTML=[['Today',day.length,reportTotal(day),avg(day)],['This Week',week.length,reportTotal(week),avg(week)],['This Month',month.length,reportTotal(month),avg(month)]]
+    .map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${dualMoney(r[2])}</td><td>${r[3]}</td></tr>`).join('');
+}
+function printReport(){
+  const b=getBusinessInfo(),day=periodSales('day'),week=periodSales('week'),month=periodSales('month');
+  const rows=[['Daily',day],['Weekly',week],['Monthly',month]].map(([n,a])=>`<tr><td>${n}</td><td>${a.length}</td><td>${dualMoney(reportTotal(a))}</td></tr>`).join('');
+  const html=`<html><head><title>${esc(b.bizName||b.name||'BeGirl9')} Sales Report</title><style>body{font-family:Arial,sans-serif;padding:28px;max-width:800px;margin:auto}h1{text-align:center}.logo{text-align:center}.logo img{max-width:100px;max-height:80px}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{border-bottom:1px solid #ddd;padding:10px;text-align:left}</style></head><body>${getBusinessReceiptHTML()}<h1>Sales Report</h1><table><thead><tr><th>Period</th><th>Sales</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table><p style="margin-top:30px">Printed ${new Date().toLocaleString()}</p><script>window.onload=()=>{window.print()}<\/script></body></html>`;
+  const w=window.open('','_blank','width=800,height=800');if(!w)return alert('Please allow pop-ups to print the report.');w.document.write(html);w.document.close();
+}
+
+function exportCSV(){let rows=[['Receipt','Date','Total','Payment','Customer'],...sales.map(s=>[s.id,s.date,s.total,s.payment,s.customer||''])];let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='sales.csv';a.click()}
+function saveRate(){rate=+document.getElementById('rate').value||4100;localStorage.setItem('rate',rate);renderCart()}
+
+
+
+window.pendingProductImage='';
+let photoStream=null, photoFacing='environment';
+
+function previewProductImage(input){
+  const file=input.files && input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>setProductImage(reader.result);
+  reader.readAsDataURL(file);
+}
+function setProductImage(data){
+  window.pendingProductImage=data;
+  document.getElementById('productImagePreview').innerHTML=
+    `<img src="${data}" style="width:110px;height:110px;object-fit:cover;border-radius:12px;border:1px solid #ddd">`;
+}
+async function openProductPhotoCamera(){
+  document.getElementById('photoScanner').classList.add('show');
+  await startProductPhotoCamera();
+}
+function closeProductPhotoCamera(){
+  document.getElementById('photoScanner').classList.remove('show');
+  stopProductPhotoCamera();
+}
+function stopProductPhotoCamera(){
+  if(photoStream){photoStream.getTracks().forEach(t=>t.stop());photoStream=null}
+  const v=document.getElementById('photoVideo');
+  if(v){v.pause();v.srcObject=null}
+}
+async function startProductPhotoCamera(){
+  stopProductPhotoCamera();
+  const status=document.getElementById('photoStatus');
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    status.textContent='Camera unavailable. Use Choose Picture instead.';
+    return;
+  }
+  try{
+    photoStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:photoFacing},width:{ideal:1920},height:{ideal:1080}},
+      audio:false
+    });
+    const v=document.getElementById('photoVideo');
+    v.srcObject=photoStream;
+    await v.play();
+    status.textContent='Camera ready. Center the product and tap Take Picture.';
+  }catch(e){
+    status.textContent='Camera permission was blocked. Allow camera access or choose a picture.';
+  }
+}
+function captureProductPhoto(){
+  const v=document.getElementById('photoVideo'), c=document.getElementById('photoCanvas');
+  if(!v.videoWidth)return;
+  const max=1200, scale=Math.min(1,max/v.videoWidth);
+  c.width=Math.round(v.videoWidth*scale); c.height=Math.round(v.videoHeight*scale);
+  const ctx=c.getContext('2d');
+  ctx.drawImage(v,0,0,c.width,c.height);
+  setProductImage(c.toDataURL('image/jpeg',0.82));
+  document.getElementById('photoStatus').textContent='Picture captured.';
+  setTimeout(closeProductPhotoCamera,500);
+}
+async function switchProductPhotoCamera(){
+  photoFacing=photoFacing==='environment'?'user':'environment';
+  await startProductPhotoCamera();
+}
+function uploadProductPhoto(){
+  const input=document.getElementById('pimg');
+  input.click();
+}
+
+let invCameraStream=null, invDetector=null, invScanTimer=null, invCameraFacing='environment';
+
+async function openInventoryScanner(){
+  document.getElementById('invScanner').classList.add('show');
+  await startInventoryCamera();
+}
+function closeInventoryScanner(){
+  document.getElementById('invScanner').classList.remove('show');
+  stopInventoryCamera();
+}
+function stopInventoryCamera(){
+  if(invScanTimer){clearTimeout(invScanTimer);invScanTimer=null}
+  if(invCameraStream){invCameraStream.getTracks().forEach(t=>t.stop());invCameraStream=null}
+  const v=document.getElementById('invCameraVideo');
+  if(v){v.pause();v.srcObject=null}
+}
+async function startInventoryCamera(){
+  stopInventoryCamera();
+  const status=document.getElementById('invScanStatus');
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    status.textContent='Camera access is not available. Use manual entry or a USB/Bluetooth scanner.';
+    return;
+  }
+  try{
+    invCameraStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:invCameraFacing},width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
+    const v=document.getElementById('invCameraVideo');
+    v.srcObject=invCameraStream;
+    await v.play();
+    if('BarcodeDetector' in window){
+      let formats;
+      try{formats=await BarcodeDetector.getSupportedFormats()}catch(e){}
+      invDetector=new BarcodeDetector(formats && formats.length ? {formats} : undefined);
+      status.textContent='Camera ready — point at the product barcode.';
+      detectInventoryLoop();
+    }else{
+      status.textContent='Automatic barcode detection is not supported by this browser. Try Chrome or use manual entry.';
+    }
+  }catch(e){
+    status.textContent='Camera permission was blocked or unavailable. Allow camera access and try again.';
+  }
+}
+async function detectInventoryLoop(){
+  if(!invDetector || !invCameraStream)return;
+  const v=document.getElementById('invCameraVideo');
+  try{
+    if(v.readyState>=2){
+      const codes=await invDetector.detect(v);
+      if(codes && codes.length){
+        const value=(codes[0].rawValue||'').trim();
+        if(value){useInventoryScannedCode(value);return}
+      }
+    }
+  }catch(e){}
+  invScanTimer=setTimeout(detectInventoryLoop,180);
+}
+function useInventoryScannedCode(value){
+  document.getElementById('pbar').value=value;
+  document.getElementById('invScanStatus').textContent='Barcode captured: '+value;
+  setTimeout(closeInventoryScanner,500);
+}
+async function switchInventoryCamera(){
+  invCameraFacing=invCameraFacing==='environment'?'user':'environment';
+  await startInventoryCamera();
+}
+function manualInventoryScan(){
+  const v=prompt('Enter or scan barcode / SKU:');
+  if(v)useInventoryScannedCode(v.trim());
+}
+
+let cameraStream=null, detector=null, scanTimer=null, cameraFacing='environment';
+
+async function openScanner(){
+  document.getElementById('scanner').classList.add('show');
+  await startCamera();
+}
+function closeScanner(){
+  document.getElementById('scanner').classList.remove('show');
+  stopCamera();
+}
+function stopCamera(){
+  if(scanTimer){clearTimeout(scanTimer);scanTimer=null}
+  if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}
+  const v=document.getElementById('cameraVideo');
+  if(v){v.pause();v.srcObject=null}
+}
+async function startCamera(){
+  stopCamera();
+  const status=document.getElementById('scanStatus');
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    status.textContent='Camera access is not available in this browser. Use manual entry or a USB/Bluetooth scanner.';
+    return;
+  }
+  try{
+    cameraStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:cameraFacing},width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
+    const v=document.getElementById('cameraVideo');
+    v.srcObject=cameraStream;
+    await v.play();
+    if('BarcodeDetector' in window){
+      let formats;
+      try{formats=await BarcodeDetector.getSupportedFormats()}catch(e){}
+      detector=new BarcodeDetector(formats && formats.length ? {formats} : undefined);
+      status.textContent='Camera ready — point at a barcode or QR code.';
+      detectLoop();
+    }else{
+      status.textContent='Camera is open, but automatic barcode detection is not supported by this browser. Use Chrome on Android or manual/USB scanner.';
+    }
+  }catch(e){
+    status.textContent='Camera permission was blocked or unavailable. Allow camera access and try again.';
+  }
+}
+async function detectLoop(){
+  if(!detector || !cameraStream)return;
+  const v=document.getElementById('cameraVideo');
+  try{
+    if(v.readyState>=2){
+      const codes=await detector.detect(v);
+      if(codes && codes.length){
+        const value=(codes[0].rawValue||'').trim();
+        if(value){handleScannedCode(value);return}
+      }
+    }
+  }catch(e){}
+  scanTimer=setTimeout(detectLoop,180);
+}
+function handleScannedCode(value){
+  document.getElementById('scanStatus').textContent='Detected: '+value;
+  const p=products.find(x=>x.sku===value || x.bar===value);
+  if(p){
+    add(p.id);
+    setTimeout(closeScanner,500);
+  }else{
+    document.getElementById('search').value=value;
+    renderProducts();
+    document.getElementById('scanStatus').textContent='Code detected, but no matching product was found. Add this barcode to the product in Inventory.';
+  }
+}
+async function switchCamera(){
+  cameraFacing=cameraFacing==='environment'?'user':'environment';
+  await startCamera();
+}
+function manualScan(){
+  const v=prompt('Enter or scan barcode / SKU:');
+  if(v)handleScannedCode(v.trim());
+}
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),1000);renderProducts();renderCart();
+
+const BUSINESS_KEY = 'propos_business_v1';
+
+function getBusinessInfo(){
+  try{
+    const b = JSON.parse(localStorage.getItem(BUSINESS_KEY) || '{}');
+    // Keep the editable Business Name field and the header name in sync.
+    if(!b.bizName && b.name) b.bizName = b.name;
+    if(!b.name && b.bizName) b.name = b.bizName;
+    if(!b.name && !b.bizName) { b.name='BeGirl9'; b.bizName='BeGirl9'; }
+    return b;
+  }catch(e){ return {name:'BeGirl9',bizName:'BeGirl9'}; }
+}
+
+function loadBusinessSettings(){
+  const b = getBusinessInfo();
+  const ids = ['bizName','bizPhone','bizAddress','bizCity','bizMessage'];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=b[id] || (id==='bizName' ? (b.name || 'BeGirl9') : '');
+  });
+  const logoSize=document.getElementById('bizLogoSize');
+  const nameSize=document.getElementById('bizNameSize');
+  const nameFont=document.getElementById('bizNameFont');
+  const nameWeight=document.getElementById('bizNameWeight');
+  if(logoSize) logoSize.value=b.logoSize || 58;
+  if(nameSize) nameSize.value=b.nameSize || 20;
+  if(nameFont) nameFont.value=b.nameFont || 'system-ui';
+  if(nameWeight) nameWeight.value=b.nameWeight || '800';
+  const preview=document.getElementById('bizLogoPreview');
+  if(preview){
+    preview.innerHTML=b.logo ? '<img src="'+b.logo+'" alt="Business logo">' : '<span class="muted">No logo selected</span>';
+  }
+  applyBusinessBranding(b);
+  previewBrandSize();
+  previewBrandFont();
+}
+
+function saveBusinessInfo(){
+  const b=getBusinessInfo();
+  ['bizName','bizPhone','bizAddress','bizCity','bizMessage'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) b[id]=el.value.trim();
+  b.name = b.bizName || 'BeGirl9';
+  });
+  const logoSize=document.getElementById('bizLogoSize');
+  const nameSize=document.getElementById('bizNameSize');
+  const nameFont=document.getElementById('bizNameFont');
+  const nameWeight=document.getElementById('bizNameWeight');
+  b.logoSize=parseInt(logoSize?.value || b.logoSize || 58,10);
+  b.nameSize=parseInt(nameSize?.value || b.nameSize || 20,10);
+  b.nameFont=nameFont?.value || b.nameFont || 'system-ui';
+  b.nameWeight=nameWeight?.value || b.nameWeight || '800';
+  localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+  applyBusinessBranding(b);
+  const preview=document.getElementById('bizLogoPreview');
+  if(preview) preview.innerHTML=b.logo ? '<img src="'+b.logo+'" alt="Business logo">' : '<span class="muted">No logo selected</span>';
+  alert('Business information saved.');
+}
+
+function loadBusinessLogo(input){
+  const file=input.files && input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const b=getBusinessInfo();
+    b.logo=reader.result;
+    localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+    loadBusinessSettings();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearBusinessLogo(){
+  const b=getBusinessInfo();
+  delete b.logo;
+  localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+  loadBusinessSettings();
+}
+
+
+function previewBrandSize(){
+  const b=getBusinessInfo();
+  const logoSize=document.getElementById('bizLogoSize');
+  const nameSize=document.getElementById('bizNameSize');
+  b.logoSize=parseInt(logoSize ? logoSize.value : (b.logoSize||58),10);
+  b.nameSize=parseInt(nameSize ? nameSize.value : (b.nameSize||20),10);
+  const lv=document.getElementById('bizLogoSizeValue');
+  const nv=document.getElementById('bizNameSizeValue');
+  if(lv) lv.textContent=b.logoSize+' px';
+  if(nv) nv.textContent=b.nameSize+' px';
+  const logo=document.getElementById('posBusinessLogo');
+  const name=document.getElementById('posBusinessName');
+  if(logo){
+    logo.style.width=b.logoSize+'px';
+    logo.style.height=b.logoSize+'px';
+  }
+  if(name) name.style.fontSize=b.nameSize+'px';
+}
+
+
+function previewBrandFont(){
+  const b=getBusinessInfo();
+  const font=document.getElementById('bizNameFont');
+  const weight=document.getElementById('bizNameWeight');
+  b.nameFont=font ? font.value : (b.nameFont||'system-ui');
+  b.nameWeight=weight ? weight.value : (b.nameWeight||'800');
+  const name=document.getElementById('posBusinessName');
+  if(name){
+    name.style.fontFamily=b.nameFont;
+    name.style.fontWeight=b.nameWeight;
+  }
+}
+
+
+function syncPosBrandingPreview(){
+  const b=getBusinessInfo();
+  const logoSize=parseInt(document.getElementById('posLogoSizeControl')?.value || b.logoSize || 58,10);
+  const nameSize=parseInt(document.getElementById('posNameSizeControl')?.value || b.nameSize || 20,10);
+  const font=document.getElementById('posNameFontControl')?.value || b.nameFont || 'system-ui';
+  const weight=document.getElementById('posNameWeightControl')?.value || b.nameWeight || '800';
+  // Live values are applied immediately to every visible screen.
+  b.logoSize=logoSize; b.nameSize=nameSize; b.nameFont=font; b.nameWeight=weight;
+
+  const logo=document.getElementById('posPreviewLogo');
+  const name=document.getElementById('posPreviewName');
+  const info=document.getElementById('posPreviewInfo');
+  const lv=document.getElementById('posLogoSizeValue');
+  const nv=document.getElementById('posNameSizeValue');
+
+  if(logo){
+    logo.style.width=logoSize+'px';
+    logo.style.height=logoSize+'px';
+    if(b.logo){
+      logo.style.display='flex';
+      logo.innerHTML='<img src="'+b.logo+'" alt="Business logo">';
+    }else{
+      logo.style.display='none';
+      logo.innerHTML='';
+    }
+  }
+  if(name){
+    name.textContent=b.name || 'Your Business';
+    name.style.fontSize=nameSize+'px';
+    name.style.fontFamily=font;
+    name.style.fontWeight=weight;
+  }
+  if(info){
+    info.textContent=[b.address,b.city,b.phone].filter(Boolean).join(' • ');
+  }
+  if(lv) lv.textContent=logoSize+' px';
+  if(nv) nv.textContent=nameSize+' px';
+  localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+  updateAllScreenBrandingNoLoop();
+}
+
+function updateAllScreenBrandingNoLoop(){
+  const b=getBusinessInfo();
+  const logoSize=b.logoSize||58, nameSize=b.nameSize||20;
+  const font=b.nameFont||'system-ui', weight=b.nameWeight||'800';
+  const name=b.bizName||b.name||'BeGirl9';
+  const info=[b.address,b.city,b.phone].filter(Boolean).join(' • ');
+  ['pos','inventory','sales','reports','settings'].forEach(s=>{
+    const logo=document.getElementById('screenBrandLogo-'+s);
+    const nm=document.getElementById('screenBrandName-'+s);
+    const inf=document.getElementById('screenBrandInfo-'+s);
+    if(logo){ logo.style.width=logoSize+'px'; logo.style.height=logoSize+'px'; logo.style.display=b.logo?'flex':'none'; logo.innerHTML=b.logo?'<img src="'+b.logo+'" alt="Business logo">':''; }
+    if(nm){ nm.textContent=name; nm.style.fontSize=nameSize+'px'; nm.style.fontFamily=font; nm.style.fontWeight=weight; }
+    if(inf) inf.textContent=info;
+  });
+  const sl=document.getElementById('settingsLiveLogo'), sn=document.getElementById('settingsLiveName'), si=document.getElementById('settingsLiveInfo');
+  if(sl){sl.style.width=logoSize+'px';sl.style.height=logoSize+'px';sl.style.display=b.logo?'flex':'none';sl.innerHTML=b.logo?'<img src="'+b.logo+'" alt="Business logo">':'';}
+  if(sn){sn.textContent=name;sn.style.fontSize=nameSize+'px';sn.style.fontFamily=font;sn.style.fontWeight=weight;}
+  if(si)si.textContent=info;
+}
+
+function savePosBrandingPreview(){
+  const b=getBusinessInfo();
+  b.logoSize=parseInt(document.getElementById('posLogoSizeControl')?.value || 58,10);
+  b.nameSize=parseInt(document.getElementById('posNameSizeControl')?.value || 20,10);
+  b.nameFont=document.getElementById('posNameFontControl')?.value || 'system-ui';
+  b.nameWeight=document.getElementById('posNameWeightControl')?.value || '800';
+  localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+  loadBusinessSettings();
+  alert('POS branding saved.');
+}
+
+function loadPosBrandingPreviewControls(){
+  const b=getBusinessInfo();
+  const logoSize=document.getElementById('posLogoSizeControl');
+  const nameSize=document.getElementById('posNameSizeControl');
+  const font=document.getElementById('posNameFontControl');
+  const weight=document.getElementById('posNameWeightControl');
+  if(logoSize) logoSize.value=b.logoSize || 58;
+  if(nameSize) nameSize.value=b.nameSize || 20;
+  if(font) font.value=b.nameFont || 'system-ui';
+  if(weight) weight.value=b.nameWeight || '800';
+  syncPosBrandingPreview();
+}
+
+
+function updateAllScreenBranding(){
+  applyBusinessBranding(getBusinessInfo());
+}
+
+function renderBusinessBranding(){
+  const b=getBusinessInfo();
+  const name=document.getElementById('posBusinessName');
+  const info=document.getElementById('posBusinessInfo');
+  const logo=document.getElementById('posBusinessLogo');
+  if(name){
+    name.textContent=b.name || 'Your Business';
+    name.style.fontSize=(b.nameSize||20)+'px';
+    name.style.fontFamily=b.nameFont||'system-ui';
+    name.style.fontWeight=b.nameWeight||'800';
+  }
+  if(info){
+    const parts=[b.address,b.city,b.phone].filter(Boolean);
+    info.textContent=parts.join(' • ');
+  }
+  if(logo){
+    logo.style.width=(b.logoSize||58)+'px';
+    logo.style.height=(b.logoSize||58)+'px';
+    if(b.logo){
+      logo.style.display='flex';
+      logo.innerHTML='<img src="'+b.logo+'" alt="Business logo">';
+    }else{
+      logo.style.display='none';
+      logo.innerHTML='';
+    }
+  }
+}
+
+function printLastReceipt(){
+  const s=JSON.parse(localStorage.getItem('propos_last_receipt_v1')||'null');
+  if(!s)return alert('No completed sale is available to print yet.');
+  printReceipt(s);
+}
+function printReceipt(s){
+  const b=getBusinessInfo();
+  const itemRows=(s.items||[]).map(i=>{const p=products.find(x=>x.id===i.id);const unit=p?salePrice(p):(i.unitPrice||0);return `<tr><td>${esc(p?p.name:'Product')}</td><td style="text-align:center">${i.n}</td><td style="text-align:right">${money(unit*i.n)}</td></tr>`}).join('');
+  const total=money(s.total), discount=money(s.discount||0), paid=s.payment==='KHR' ? Number(s.paid||0).toLocaleString()+' ៛' : money(s.paid||0);
+  const change=s.payment==='KHR' ? Math.max(0,(s.paid||0)-Math.round((s.total||0)*rate)).toLocaleString()+' ៛' : money(Math.max(0,(s.paid||0)-(s.total||0)));
+  const html=`<html><head><title>Receipt ${esc(s.id)}</title><style>body{font-family:Arial,sans-serif;width:320px;margin:0 auto;padding:18px;color:#111}table{width:100%;border-collapse:collapse;margin:12px 0}td{padding:5px 0;border-bottom:1px dotted #bbb}.total{font-size:18px;font-weight:800;border-top:2px solid #111;padding-top:8px}.center{text-align:center}.muted{font-size:12px;color:#666}</style></head><body>${getBusinessReceiptHTML()}<div class="center muted">Receipt ${esc(s.id)}<br>${new Date(s.date).toLocaleString()}</div><p>${s.customer?'<b>Customer:</b> '+esc(s.customer):''}</p><table><thead><tr><th style="text-align:left">Item</th><th>Qty</th><th style="text-align:right">Amount</th></tr></thead><tbody>${itemRows}</tbody></table><div>Discount: ${discount}</div><div class="total">Total: ${total}<br><span style="font-size:14px">${Math.round((s.total||0)*rate).toLocaleString()} ៛</span></div><div>Payment: ${esc(s.payment)}</div><div>Paid: ${paid}</div><div>Change: ${change}</div>${getBusinessReceiptFooterHTML()}<script>window.onload=()=>{window.print()}<\/script></body></html>`;
+  const w=window.open('','_blank','width=420,height=700');
+  if(!w)return alert('Please allow pop-ups to print the receipt.');
+  w.document.write(html);w.document.close();
+}
+
+// Expose a receipt business block for the existing print-receipt logic to use.
+function getBusinessReceiptHTML(){
+  const b=getBusinessInfo();
+  const name=b.bizName || b.name || 'BeGirl9';
+  const lines=[b.address,b.city,b.phone].filter(Boolean);
+  return `
+    <div style="text-align:center;border-bottom:1px solid #ddd;padding-bottom:10px;margin-bottom:10px">
+      ${b.logo ? '<img src="'+b.logo+'" style="max-width:90px;max-height:70px;object-fit:contain"><br>' : ''}
+      <div style="font-size:18px;font-weight:800">${name}</div>
+      ${lines.map(x=>'<div style="font-size:12px">'+x+'</div>').join('')}
+    </div>`;
+}
+
+function getBusinessReceiptFooterHTML(){
+  const b=getBusinessInfo();
+  return b.message ? '<div style="text-align:center;border-top:1px solid #ddd;margin-top:10px;padding-top:10px;font-size:12px">'+b.message+'</div>' : '';
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadBusinessSettings();
+  renderSpecialPromoItems();
+  loadPromotionSettings();
+  ['bizPhone','bizAddress','bizCity','bizMessage'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input', liveBusinessInfoPreview);
+  });
+});
+
+function liveBusinessInfoPreview(){
+  const b=getBusinessInfo();
+  ['bizName','bizPhone','bizAddress','bizCity','bizMessage'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) b[id]=el.value;
+  });
+  // Save text fields as they are edited so the business name cannot be lost
+  // when another branding control is changed or the screen is refreshed.
+  localStorage.setItem(BUSINESS_KEY, JSON.stringify(b));
+  applyBusinessBranding(b);
+}
+
+function applyBusinessBranding(b){
+  const logoSize=parseInt(b.logoSize||58,10);
+  const nameSize=parseInt(b.nameSize||20,10);
+  const font=b.nameFont||'system-ui';
+  const weight=b.nameWeight||'800';
+  const name=b.bizName || b.name || 'BeGirl9';
+  const info=[b.address,b.city,b.phone].filter(Boolean).join(' • ');
+  ['pos','inventory','sales','reports','settings'].forEach(s=>{
+    const logo=document.getElementById('screenBrandLogo-'+s);
+    const nm=document.getElementById('screenBrandName-'+s);
+    const inf=document.getElementById('screenBrandInfo-'+s);
+    if(logo){
+      logo.style.width=logoSize+'px'; logo.style.height=logoSize+'px';
+      logo.style.display=b.logo?'flex':'none';
+      logo.innerHTML=b.logo?'<img src="'+b.logo+'" alt="Business logo">':'';
+    }
+    if(nm){ nm.textContent=name; nm.style.fontSize=nameSize+'px'; nm.style.fontFamily=font; nm.style.fontWeight=weight; }
+    if(inf) inf.textContent=info;
+  });
+  const liveLogo=document.getElementById('settingsLiveLogo');
+  const liveName=document.getElementById('settingsLiveName');
+  const liveInfo=document.getElementById('settingsLiveInfo');
+  if(liveLogo){ liveLogo.style.width=logoSize+'px'; liveLogo.style.height=logoSize+'px'; liveLogo.style.display=b.logo?'flex':'none'; liveLogo.innerHTML=b.logo?'<img src="'+b.logo+'" alt="Business logo">':''; }
+  if(liveName){ liveName.textContent=name; liveName.style.fontSize=nameSize+'px'; liveName.style.fontFamily=font; liveName.style.fontWeight=weight; }
+  if(liveInfo) liveInfo.textContent=info;
+  const oldName=document.getElementById('posBusinessName');
+  const oldInfo=document.getElementById('posBusinessInfo');
+  const oldLogo=document.getElementById('posBusinessLogo');
+  if(oldName){ oldName.textContent=name; oldName.style.fontSize=nameSize+'px'; oldName.style.fontFamily=font; oldName.style.fontWeight=weight; }
+  if(oldInfo) oldInfo.textContent=info;
+  if(oldLogo){ oldLogo.style.width=logoSize+'px'; oldLogo.style.height=logoSize+'px'; oldLogo.style.display=b.logo?'flex':'none'; oldLogo.innerHTML=b.logo?'<img src="'+b.logo+'" alt="Business logo">':''; }
+}
+
+
+
+
+function getBeGirl9Backup(){
+  const keys=[
+    'propos_products_v1',
+    'propos_sales_v1',
+    'propos_held_v1',
+    'propos_business_v1',
+    'propos_promotion_v1',
+    'propos_last_receipt_v1',
+    'rate',
+    'propos_cloud_config_v1'
+  ];
+  const data={app:'BeGirl9 POS',version:1,exportedAt:new Date().toISOString(),storage:{}};
+  keys.forEach(k=>{
+    const v=localStorage.getItem(k);
+    if(v!==null)data.storage[k]=v;
+  });
+  return data;
+}
+function backupBeGirl9Data(){
+  try{
+    const data=getBeGirl9Backup();
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+    a.href=url; a.download='BeGirl9_Backup_'+stamp+'.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    const s=document.getElementById('transferStatus');
+    if(s)s.textContent='Backup created. Move this JSON file to the other device and use Restore Data.';
+  }catch(e){ alert('Unable to create the backup file.'); }
+}
+function restoreBeGirl9Data(input){
+  const file=input.files && input.files[0];
+  if(!file)return;
+  const status=document.getElementById('transferStatus');
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!data || data.app!=='BeGirl9 POS' || !data.storage)throw new Error('Invalid backup');
+      if(!confirm('Restore this BeGirl9 backup? Current data on this device will be replaced.')){ input.value=''; return; }
+      const validKeys=['propos_products_v1','propos_sales_v1','propos_held_v1','propos_business_v1','propos_promotion_v1','propos_last_receipt_v1','rate','propos_cloud_config_v1'];
+      validKeys.forEach(k=>{
+        if(Object.prototype.hasOwnProperty.call(data.storage,k)) localStorage.setItem(k,String(data.storage[k]));
+        else localStorage.removeItem(k);
+      });
+      input.value='';
+      if(status)status.textContent='Restore complete. The POS will reload with the transferred data.';
+      setTimeout(()=>location.reload(),300);
+    }catch(e){
+      input.value='';
+      if(status)status.textContent='That file is not a valid BeGirl9 backup.';
+      alert('Invalid BeGirl9 backup file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+
+/* ===== BeGirl9 live cloud sync ===== */
+const CLOUD_CONFIG_KEY='propos_cloud_config_v1';
+const CLOUD_DEVICE_KEY='propos_cloud_device_v1';
+const CLOUD_META_KEY='propos_cloud_meta_v1';
+const CLOUD_KEYS=[key,skey,hkey,'propos_business_v1','propos_promotion_v1','propos_last_receipt_v1','rate'];
+let cloud={app:null,auth:null,db:null,connected:false,uid:null,deviceId:null,unsub:null,modules:null,applying:false,initialHandled:false,syncTimer:null};
+
+function cloudDeviceId(){
+  let id=localStorage.getItem(CLOUD_DEVICE_KEY);
+  if(!id){id='DEV-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);localStorage.setItem(CLOUD_DEVICE_KEY,id)}
+  return id;
+}
+cloud.deviceId=cloudDeviceId();
+
+function cloudSetStatus(text,state=''){
+  const t=document.getElementById('cloudSyncText'),d=document.getElementById('cloudSyncDot');
+  if(t)t.textContent=text;
+  if(d)d.className='sync-dot '+(state||'');
+}
+function cloudSetError(text){const e=document.getElementById('cloudSyncError');if(e)e.textContent=text||''}
+function cloudSetTime(ts){const e=document.getElementById('cloudSyncTime');if(e)e.textContent=ts?('Last sync '+new Date(ts).toLocaleString()):''}
+function getCloudConfig(){
+  try{return JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||'null')||null}catch(e){return null}
+}
+function cloudConfigFromFields(){
+  return {
+    apiKey:document.getElementById('fbApiKey')?.value.trim()||'',
+    authDomain:document.getElementById('fbAuthDomain')?.value.trim()||'',
+    databaseURL:document.getElementById('fbDatabaseURL')?.value.trim()||'',
+    projectId:document.getElementById('fbProjectId')?.value.trim()||'',
+    storageBucket:document.getElementById('fbStorageBucket')?.value.trim()||'',
+    messagingSenderId:document.getElementById('fbMessagingSenderId')?.value.trim()||'',
+    appId:document.getElementById('fbAppId')?.value.trim()||''
+  };
+}
+function putCloudConfigFields(cfg){
+  if(!cfg)return;
+  ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId'].forEach(k=>{const e=document.getElementById('fb'+k.charAt(0).toUpperCase()+k.slice(1));if(e)e.value=cfg[k]||''});
+  const em=localStorage.getItem('propos_cloud_email_v1')||'';const ee=document.getElementById('fbEmail');if(ee)ee.value=em;
+}
+function cloudState(){
+  const storage={};
+  CLOUD_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)storage[k]=v});
+  return {storage,updatedAt:Date.now(),deviceId:cloud.deviceId};
+}
+function scheduleCloudSync(){
+  if(cloud.applying||!cloud.connected)return;
+  clearTimeout(cloud.syncTimer);
+  cloud.syncTimer=setTimeout(()=>pushCloudState().catch(()=>{}),350);
+}
+function hookLocalStorageForCloud(){
+  if(window.__begirlCloudStorageHook)return;
+  window.__begirlCloudStorageHook=true;
+  const os=Storage.prototype.setItem,or=Storage.prototype.removeItem;
+  Storage.prototype.setItem=function(k,v){const r=os.call(this,k,v);if(this===localStorage&&CLOUD_KEYS.includes(k)&&!cloud.applying)scheduleCloudSync();return r};
+  Storage.prototype.removeItem=function(k){const r=or.call(this,k);if(this===localStorage&&CLOUD_KEYS.includes(k)&&!cloud.applying)scheduleCloudSync();return r};
+}
+function applyCloudStorage(storage){
+  cloud.applying=true;
+  try{
+    CLOUD_KEYS.forEach(k=>{
+      if(Object.prototype.hasOwnProperty.call(storage||{},k)) localStorage.setItem(k,String(storage[k]));
+      else localStorage.removeItem(k);
+    });
+    if(localStorage.getItem('rate')){const r=+(localStorage.getItem('rate')||4100);if(document.getElementById('rate'))document.getElementById('rate').value=r}
+  }finally{cloud.applying=false}
+}
+async function loadFirebaseModules(){
+  if(cloud.modules)return cloud.modules;
+  cloud.modules=await Promise.all([
+    import('https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js')
+  ]).then(([app,auth,database])=>({
+    initializeApp:app.initializeApp,
+    getApps:app.getApps,
+    getAuth:auth.getAuth,
+    signInWithEmailAndPassword:auth.signInWithEmailAndPassword,
+    createUserWithEmailAndPassword:auth.createUserWithEmailAndPassword,
+    onAuthStateChanged:auth.onAuthStateChanged,
+    signOut:auth.signOut,
+    getDatabase:database.getDatabase,
+    ref:database.ref,
+    set:database.set,
+    onValue:database.onValue
+  }));
+  return cloud.modules;
+}
+function requireCloudConfig(){
+  const c=getCloudConfig();
+  if(!c||!c.apiKey||!c.authDomain||!c.databaseURL||!c.projectId||!c.appId)throw new Error('Enter your Firebase Web App configuration first.');
+  return c;
+}
+async function initCloudSync(){
+  const c=getCloudConfig();
+  if(!c)return;
+  hookLocalStorageForCloud();
+  cloudSetStatus('Connecting to cloud…','connecting');cloudSetError('');
+  try{
+    const m=await loadFirebaseModules();
+    if(!cloud.app){
+      const appList=m.getApps();
+      cloud.app=appList.length?appList[0]:m.initializeApp(c);
+      cloud.auth=m.getAuth(cloud.app);
+      cloud.db=m.getDatabase(cloud.app);
+      m.onAuthStateChanged(cloud.auth,async user=>{
+        cloud.uid=user?.uid||null;
+        cloud.connected=!!user;
+        if(!user){cloud.initialHandled=false;cloudSetStatus('Not signed in','offline');return}
+        cloudSetStatus('Cloud Sync connected','online');
+        await attachCloudListener();
+      });
+    }
+    const email=localStorage.getItem('propos_cloud_email_v1')||'';
+    if(email){
+      cloudSetStatus('Ready — sign in to sync','connecting');
+    }
+  }catch(e){cloudSetStatus('Cloud Sync unavailable','offline');cloudSetError(e.message||String(e))}
+}
+async function attachCloudListener(){
+  if(!cloud.uid||!cloud.db)return;
+  const m=cloud.modules||await loadFirebaseModules();
+  const r=m.ref(cloud.db,'posData/'+cloud.uid);
+  if(cloud.unsub)try{cloud.unsub()}catch(e){}
+  cloud.initialHandled=false;
+  cloud.unsub=m.onValue(r,async snap=>{
+    const data=snap.val();
+    if(!data){
+      await pushCloudState();
+      return;
+    }
+    const lastLocal=+(localStorage.getItem(CLOUD_META_KEY)||0);
+    const remoteTs=+(data.updatedAt||0);
+    cloudSetTime(remoteTs);
+    if(data.deviceId===cloud.deviceId)return;
+    if(!cloud.initialHandled && !lastLocal){
+      cloud.initialHandled=true;
+      const useCloud=confirm('A BeGirl9 cloud account already has data. Use the cloud data on this device?\n\nChoose Cancel to upload this device\'s current data instead.');
+      if(useCloud){applyCloudStorage(data.storage||{});localStorage.setItem(CLOUD_META_KEY,String(remoteTs));location.reload();return}
+      await pushCloudState();return;
+    }
+    if(remoteTs>=lastLocal){
+      cloud.initialHandled=true;
+      applyCloudStorage(data.storage||{});
+      localStorage.setItem(CLOUD_META_KEY,String(remoteTs));
+      cloudSetStatus('Synced from another device','online');
+      setTimeout(()=>location.reload(),120);
+    }
+  });
+}
+async function pushCloudState(){
+  if(!cloud.connected||!cloud.uid||!cloud.db||cloud.applying)return;
+  const m=cloud.modules||await loadFirebaseModules();
+  const state=cloudState();
+  const meta={updatedAt:state.updatedAt,deviceId:state.deviceId};
+  const r=m.ref(cloud.db,'posData/'+cloud.uid);
+  await m.set(r,state);
+  localStorage.setItem(CLOUD_META_KEY,String(state.updatedAt));
+  cloudSetTime(state.updatedAt);cloudSetStatus('Cloud Sync connected','online');
+}
+function connectCloudSignIn(){
+  const email=document.getElementById('fbEmail')?.value.trim()||'',password=document.getElementById('fbPassword')?.value||'';
+  if(!email||!password)return alert('Enter the sync account email and password.');
+  localStorage.setItem('propos_cloud_email_v1',email);
+  const c=cloudConfigFromFields();
+  if(!c.apiKey||!c.authDomain||!c.databaseURL||!c.projectId||!c.appId)return alert('Enter all required Firebase Web App configuration fields.');
+  localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(c));
+  initCloudSync().then(async()=>{try{const m=cloud.modules||await loadFirebaseModules();await m.signInWithEmailAndPassword(cloud.auth,email,password);document.getElementById('fbPassword').value='';}catch(e){cloudSetStatus('Sign-in failed','offline');cloudSetError(e.message||String(e));alert('Cloud sign-in failed: '+(e.message||e.code||'Unknown error'))}}).catch(e=>alert(e.message||String(e)));
+}
+async function saveCloudConfigAndConnect(){connectCloudSignIn()}
+async function createCloudAccount(){
+  const email=document.getElementById('fbEmail')?.value.trim()||'',password=document.getElementById('fbPassword')?.value||'';
+  if(!email||password.length<6)return alert('Enter an email and a password with at least 6 characters.');
+  const c=cloudConfigFromFields();
+  if(!c.apiKey||!c.authDomain||!c.databaseURL||!c.projectId||!c.appId)return alert('Enter all required Firebase Web App configuration fields.');
+  localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(c));localStorage.setItem('propos_cloud_email_v1',email);
+  try{await initCloudSync();const m=cloud.modules||await loadFirebaseModules();await m.createUserWithEmailAndPassword(cloud.auth,email,password);document.getElementById('fbPassword').value='';alert('Sync account created. This same email/password can be used on your other devices.');}
+  catch(e){cloudSetStatus('Account creation failed','offline');cloudSetError(e.message||String(e));alert('Could not create the sync account: '+(e.message||e.code||'Unknown error'))}
+}
+async function cloudSignOut(){
+  try{if(cloud.auth&&cloud.modules){await cloud.modules.signOut(cloud.auth)}else{cloudSetStatus('Not connected','offline')}}catch(e){cloudSetError(e.message||String(e))}
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  hookLocalStorageForCloud();
+  putCloudConfigFields(getCloudConfig());
+  initCloudSync();
+});
+
+// BeGirl9 PWA install support
+let beGirl9InstallPrompt=null;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  beGirl9InstallPrompt=e;
+  const btn=document.getElementById('installAppBtn');
+  const st=document.getElementById('installAppStatus');
+  if(btn) btn.style.display='inline-block';
+  if(st) st.textContent='BeGirl9 is ready to install on this device.';
+});
+window.addEventListener('appinstalled',()=>{
+  beGirl9InstallPrompt=null;
+  const btn=document.getElementById('installAppBtn');
+  const st=document.getElementById('installAppStatus');
+  if(btn) btn.style.display='none';
+  if(st) st.textContent='BeGirl9 is installed as an app on this device.';
+});
+async function installBeGirl9App(){
+  const st=document.getElementById('installAppStatus');
+  if(!beGirl9InstallPrompt){
+    if(st) st.textContent='Use your browser menu and choose “Add to Home Screen” or “Install BeGirl9” when available.';
+    return;
+  }
+  try{
+    beGirl9InstallPrompt.prompt();
+    await beGirl9InstallPrompt.userChoice;
+    beGirl9InstallPrompt=null;
+    const btn=document.getElementById('installAppBtn');
+    if(btn) btn.style.display='none';
+  }catch(e){ if(st) st.textContent='App installation was cancelled or unavailable.'; }
+}
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+function getPrinterSettings(){try{return JSON.parse(localStorage.getItem('begirl9_printer_v1')||'{}')}catch(e){return {}}}function loadPrinterSettings(){const p=getPrinterSettings();const a=document.getElementById('printerAuto'),t=document.getElementById('printerType');if(a)a.value=p.autoPrint?'on':'off';if(t)t.value=p.type||'system'}function savePrinterSettings(){const a=document.getElementById('printerAuto'),t=document.getElementById('printerType');localStorage.setItem('begirl9_printer_v1',JSON.stringify({autoPrint:a?.value==='on',type:t?.value||'system'}))}document.addEventListener('DOMContentLoaded',loadPrinterSettings);
+</script></body></html>
