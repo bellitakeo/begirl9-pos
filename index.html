@@ -100,6 +100,58 @@ main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;just
 .cloud-config-grid label{font-size:12px;font-weight:700}.cloud-config-grid input{width:100%;padding:10px;border:1px solid #d5dbe3;border-radius:9px;margin-top:5px}
 .cloud-code{width:100%;min-height:120px;padding:10px;border:1px solid #d5dbe3;border-radius:9px;font-family:ui-monospace,monospace;font-size:12px}
 @media(max-width:700px){.cloud-config-grid{grid-template-columns:1fr}}
+
+/* Inventory barcode scanner: force it above every screen and make camera prominent */
+#invScanner{position:fixed!important;inset:0!important;z-index:2147483647!important;display:none;align-items:stretch;justify-content:stretch;padding:0!important;margin:0!important;background:rgba(0,0,0,.97)!important;isolation:isolate}
+#invScanner.show{display:flex!important}
+#invScanner .modalbox{position:relative;z-index:1;width:100%!important;max-width:none!important;height:100vh;height:100dvh;max-height:none!important;border-radius:0!important;overflow:auto;padding:clamp(12px,2.5vw,26px);display:flex;flex-direction:column;gap:10px;background:#101318;color:#fff}
+#invScanner #invCameraVideo{width:100%!important;height:calc(100dvh - 230px)!important;min-height:280px;max-height:820px;object-fit:contain;background:#000;border-radius:12px}
+#invScanner .actions{margin-top:auto}
+#invScanner .muted{color:#e5e7eb}
+@media(max-width:600px){#invScanner #invCameraVideo{height:calc(100dvh - 250px)!important;min-height:240px}#invScanner .modalbox{padding:12px}}
+
+/* Large POS scanned-product preview */
+.pos-product-view{margin-top:14px;border:1px solid #dbe2ea;border-radius:16px;background:#f8fafc;overflow:hidden;min-height:360px}
+.pos-product-main{display:grid;grid-template-columns:minmax(180px, .9fr) minmax(220px,1.1fr);gap:22px;align-items:center;padding:20px}
+.pos-product-photo{width:100%;height:300px;object-fit:contain;background:#fff;border:1px solid #e5e7eb;border-radius:14px}
+.pos-product-placeholder{height:300px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:#fff;border:1px dashed #cbd5e1;border-radius:14px;color:#64748b;text-align:center;padding:16px;box-sizing:border-box}
+.pos-product-name{font-size:clamp(22px,3vw,32px);font-weight:900;line-height:1.15;margin:0 0 8px;overflow-wrap:anywhere}
+.pos-product-price{font-size:clamp(26px,3vw,38px);font-weight:900;margin:12px 0;color:#166534}
+.pos-product-stat{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e5e7eb}
+.pos-product-stat strong{text-align:right}
+.pos-product-total{font-size:22px;font-weight:900;margin-top:12px;padding:12px;border-radius:10px;background:#e0f2fe;display:flex;justify-content:space-between;gap:10px}
+.pos-product-results{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 16px}
+.pos-product-result{background:#fff;border:1px solid #d1d5db;border-radius:9px;padding:9px 12px;text-align:left;max-width:100%}
+@media(max-width:600px){.pos-product-main{grid-template-columns:1fr;padding:12px;gap:14px}.pos-product-photo,.pos-product-placeholder{height:220px}.pos-product-view{min-height:0}.pos-product-name{font-size:24px}}
+
+
+/* Fix: keep Add/Edit Product modal above the sticky black navigation header.
+   Keep the whole product form scrollable so Category and later fields are reachable. */
+#modal{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  overflow-y:auto;
+  align-items:center;
+  justify-content:center;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+}
+#modal.show{display:flex}
+#modal .modalbox{
+  position:relative;
+  z-index:10001;
+  width:100%;
+  max-width:600px;
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+@media(max-width:600px){
+  #modal{align-items:flex-start;padding:8px}
+  #modal .modalbox{max-height:calc(100dvh - 16px);padding:16px}
+}
+
 </style></head>
 <body>
 <div class="app">
@@ -116,7 +168,7 @@ main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;just
     <div class="screen-brand-info" id="screenBrandInfo-pos"></div>
   </div>
 </div><div class="muted">Fast checkout • USD / KHR • split payments</div></div><div class="pill" id="clock"></div></div>
-<div class="grid"><div class="card"><div class="search"><input id="search" placeholder="Search product, SKU or barcode…" oninput="renderProducts()"><button class="secondary" onclick="openScanner()">📷 Camera Scan</button></div><div id="products" class="products"></div></div>
+<div class="grid"><div class="card"><div class="search"><input id="search" placeholder="Search product, SKU or barcode…" oninput="renderProducts()"><button class="secondary" onclick="openScanner()">📷 Camera Scan</button></div><div id="products" class="pos-product-view"></div></div>
 <div class="card"><h2 style="margin-top:0">Current Sale</h2><div id="cart"></div><div class="totals"><div class="line"><span>Subtotal</span><b id="subtotal">$0.00</b></div><div class="line"><span>Discount</span><span><input id="discount" type="number" value="0" min="0" step=".01" style="width:100px;padding:7px" oninput="renderCart()"> USD</span></div><div class="line grand"><span>Total</span><b id="total">$0.00</b></div><div class="line"><span class="muted">Total KHR</span><b id="totalKHR">0 ៛</b></div></div>
 <div style="margin-top:16px"><div class="muted">Payment method</div><div class="paygrid" style="margin-top:7px"><button id="pCASH" onclick="setPay('CASH')" class="active">Cash</button><button id="pCARD" onclick="setPay('CARD')">Card</button><button id="pOTHER" onclick="setPay('OTHER')">Other</button></div>
 <div style="margin-top:10px"><label style="font-weight:700;display:block;margin-bottom:7px">Cash Received — USD / KHR</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:800;font-size:18px;z-index:1">$</span><input id="paidUSD" type="number" step=".01" min="0" value="" placeholder="0.00" oninput="renderCart()" style="padding-left:30px;width:100%;box-sizing:border-box"></div><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-weight:800;font-size:18px;z-index:1">៛</span><input id="paidKHR" type="number" step="1" min="0" value="" placeholder="0" oninput="renderCart()" style="padding-left:30px;width:100%;box-sizing:border-box"></div></div></div>
@@ -408,7 +460,17 @@ main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;just
     </div>
   </div>
 </div>
-<div id="modal" class="modal"><div class="modalbox"><h2>Add Product</h2><div class="form"><label>Product name<input id="pn"></label><label>SKU<input id="psku"></label><label>Barcode / QR<div style="display:flex;gap:7px"><input id="pbar" style="flex:1"><button type="button" class="secondary" onclick="openInventoryScanner()">📷 Scan</button></div></label><label>Category<input id="pcat"></label>
+<div id="deleteConfirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteConfirmTitle" style="z-index:20000">
+  <div class="modalbox" style="max-width:460px">
+    <h2 id="deleteConfirmTitle" style="margin-top:0">Delete this product?</h2>
+    <p id="deleteConfirmMessage">Are you sure you want to delete this product from inventory?</p>
+    <div class="actions" style="justify-content:flex-end;margin-top:18px">
+      <button class="secondary" onclick="cancelDeleteProduct()">No — Cancel</button>
+      <button class="danger" onclick="confirmDeleteProduct()">Yes — Delete</button>
+    </div>
+  </div>
+</div>
+<div id="modal" class="modal"><div class="modalbox"><h2 id="productModalTitle">Add Product</h2><div class="form"><label>Product name<input id="pn"></label><label>SKU<input id="psku"></label><label>Barcode / QR<div style="display:flex;gap:7px"><input id="pbar" style="flex:1"><button type="button" class="secondary" onclick="openInventoryScanner()">📷 Scan</button></div></label><label>Category<input id="pcat"></label>
 <label class="full">Product Picture
   <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
     <input id="pimg" type="file" accept="image/*" capture="environment" onchange="previewProductImage(this)">
@@ -418,12 +480,13 @@ main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;just
 </label><label>Cost USD<input id="pcost" type="number" step=".01"></label><label>Selling price USD<input id="pprice" type="number" step=".01"></label><label>Sale Discount %<input id="psalediscount" type="number" min="0" max="100" step="0.01" value="0"></label><label>Sale Status<select id="psaleon"><option value="off">OFF</option><option value="on">ON</option></select></label><label>Promotion Starts<input id="psalestart" type="datetime-local"></label><label>Promotion Ends<input id="psaleend" type="datetime-local"></label><label>Quantity<input id="pqty" type="number" step="1"></label><label>Minimum stock<input id="pmin" type="number" step="1" value="5"></label></div><div class="actions" style="margin-top:15px"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveProduct()">Save Product</button></div></div></div>
 <script>
 const key='propos_products_v1', skey='propos_sales_v1', hkey='propos_held_v1';
-let products=JSON.parse(localStorage.getItem(key)||'null')||[
-{id:1,name:'Coca-Cola',sku:'COKE001',bar:'049000028904',cat:'Drinks',cost:0.55,price:1.25,qty:24,min:6},
-{id:2,name:'Water',sku:'WATER001',bar:'012345678901',cat:'Drinks',cost:.25,price:1,qty:30,min:8},
-{id:3,name:'Potato Chips',sku:'CHIP001',bar:'012345678902',cat:'Snacks',cost:.6,price:1.75,qty:15,min:5},
-{id:4,name:'Energy Drink',sku:'ENERGY001',bar:'012345678903',cat:'Drinks',cost:1,price:2.5,qty:10,min:4}
-];products=products.map(p=>({...p,saleDiscount:p.saleDiscount||0,saleOn:p.saleOn||'off',saleStart:p.saleStart||'',saleEnd:p.saleEnd||'',promoExcluded:!!p.promoExcluded,specialPromoOn:p.specialPromoOn||'off',specialPromoDiscount:p.specialPromoDiscount||0}));let promotion=JSON.parse(localStorage.getItem('propos_promotion_v1')||'null')||{on:'off',scope:'all',discount:0,start:'',end:'',items:[]};let sales=JSON.parse(localStorage.getItem(skey)||'[]'),held=JSON.parse(localStorage.getItem(hkey)||'[]'),cart=[],pay='CASH',rate=+(localStorage.getItem('rate')||4100);
+let lastScannedProductId=null;
+let products=JSON.parse(localStorage.getItem(key)||'null')||[];
+// Remove all starter/demo products from existing local inventory as well as new installs.
+const removedDemoNames=new Set(['coca-cola','coca cola','cola','water','potato chips','potato','energy drink']);
+products=products.filter(p=>!removedDemoNames.has(String(p.name||'').trim().toLowerCase()));
+localStorage.setItem(key,JSON.stringify(products));
+products=products.map(p=>({...p,saleDiscount:p.saleDiscount||0,saleOn:p.saleOn||'off',saleStart:p.saleStart||'',saleEnd:p.saleEnd||'',promoExcluded:!!p.promoExcluded,specialPromoOn:p.specialPromoOn||'off',specialPromoDiscount:p.specialPromoDiscount||0}));let promotion=JSON.parse(localStorage.getItem('propos_promotion_v1')||'null')||{on:'off',scope:'all',discount:0,start:'',end:'',items:[]};let sales=JSON.parse(localStorage.getItem(skey)||'[]'),held=JSON.parse(localStorage.getItem(hkey)||'[]'),cart=[],pay='CASH',rate=+(localStorage.getItem('rate')||4100);
 document.getElementById('rate').value=rate;
 function money(n){return '$'+Number(n||0).toFixed(2)}
 function khr(n){return Math.round(Number(n||0)*rate).toLocaleString()+' ៛'}
@@ -454,11 +517,26 @@ function activeDiscount(p){
 function salePrice(p){return isSaleActive(p)?Math.max(0,p.price*(1-activeDiscount(p)/100)):p.price}
 function saleLabel(p){return isSaleActive(p)?`<span class="sale-badge">SALE ${activeDiscount(p).toFixed(2).replace(/\.00$/,'')}% OFF</span>`:''}
 function show(id,btn){document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='inventory')renderInventory();if(id==='sales')renderSales();if(id==='reports')renderReports();if(id==='settings'){loadPromotionSettings();renderSpecialPromoItems()}}
-function renderProducts(){let q=document.getElementById('search').value.toLowerCase();let a=products.filter(p=>(p.name+p.sku+p.bar+p.cat).toLowerCase().includes(q));document.getElementById('products').innerHTML=a.map(p=>{let sp=salePrice(p);return `<button class="product" onclick="add(${p.id})"><b>${esc(p.name)} ${saleLabel(p)}</b><span class="muted">${esc(p.sku)}</span><div class="price">${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span>`:''}${money(sp)}</div><span class="muted">${p.qty} in stock</span></button>`}).join('')||'<div class="muted">No products found.</div>'}
-function add(id){let p=products.find(x=>x.id===id),c=cart.find(x=>x.id===id);if(!p||p.qty<1)return alert('Out of stock');if(c)c.n++;else cart.push({id,n:1});renderCart()}
+function renderProducts(){
+  const q=(document.getElementById('search').value||'').trim().toLowerCase();
+  const matches=products.filter(p=>(String(p.name||'')+' '+String(p.sku||'')+' '+String(p.bar||'')+' '+String(p.cat||'')).toLowerCase().includes(q));
+  let p=products.find(x=>x.id===lastScannedProductId);
+  if(q && matches.length===1) p=matches[0];
+  const wrap=document.getElementById('products');
+  if(!p){
+    wrap.innerHTML=`<div class="pos-product-main"><div class="pos-product-placeholder"><div style="font-size:68px">📷</div><strong style="font-size:21px;color:#334155">Scan a product barcode or QR code</strong><span>After scanning, the product picture, name, price, quantity and sale total will appear here.</span></div><div><h2 style="margin-top:0">Product Preview</h2><p class="muted">Use Camera Scan, a USB/Bluetooth scanner, or search for a product above.</p>${q && !matches.length?'<div class="low">No matching product found. Check the barcode/SKU in Inventory.</div>':''}</div></div>${q&&matches.length>1?`<div class="pos-product-results">${matches.map(x=>`<button class="pos-product-result" onclick="selectPOSProduct(${x.id})"><b>${esc(x.name)}</b><div>${money(salePrice(x))} · ${x.qty} in stock</div></button>`).join('')}</div>`:''}`;
+    return;
+  }
+  const cartItem=cart.find(c=>c.id===p.id), qty=cartItem?cartItem.n:0, unit=salePrice(p), lineTotal=unit*qty;
+  const photo=p.img?`<img class="pos-product-photo" src="${p.img}" alt="${esc(p.name)}">`:`<div class="pos-product-placeholder"><div style="font-size:64px">📦</div><strong>No product picture yet</strong><span>Add a picture in Inventory to show it here.</span></div>`;
+  wrap.innerHTML=`<div class="pos-product-main"><div>${photo}</div><div><div class="muted">SCANNED / SELECTED PRODUCT</div><h2 class="pos-product-name">${esc(p.name)} ${saleLabel(p)}</h2><div class="muted">SKU: ${esc(p.sku||'—')} · Barcode: ${esc(p.bar||'—')}</div><div class="pos-product-price">${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> `:''}${money(unit)}</div><div class="pos-product-stat"><span>Quantity in current sale</span><strong>${qty}</strong></div><div class="pos-product-stat"><span>Available stock</span><strong>${p.qty}</strong></div><div class="pos-product-stat"><span>Sale price each</span><strong>${money(unit)} · ${khr(unit)}</strong></div><div class="pos-product-total"><span>Sale total</span><span>${money(lineTotal)}<div class="muted" style="text-align:right">${khr(lineTotal)}</div></span></div><div class="actions" style="margin-top:14px"><button class="primary" onclick="add(${p.id})" ${p.qty<1?'disabled':''}>＋ Add One</button><button class="secondary" onclick="selectPOSProduct(null)">Clear Preview</button></div></div></div>${q&&matches.length>1?`<div class="pos-product-results">${matches.filter(x=>x.id!==p.id).map(x=>`<button class="pos-product-result" onclick="selectPOSProduct(${x.id})"><b>${esc(x.name)}</b><div>${money(salePrice(x))} · ${x.qty} in stock</div></button>`).join('')}</div>`:''}`;
+}
+function selectPOSProduct(id){lastScannedProductId=id;renderProducts()}
+
+function add(id){let p=products.find(x=>x.id===id),c=cart.find(x=>x.id===id);if(!p||p.qty<1)return alert('Out of stock');lastScannedProductId=id;if(c)c.n++;else cart.push({id,n:1});renderProducts();renderCart()}
 function setPay(method){pay=method;document.querySelectorAll('.paygrid button').forEach(b=>b.classList.remove('active'));const b=document.getElementById('p'+method);if(b)b.classList.add('active');renderCart()}
 function renderCart(){let sub=cart.reduce((s,c)=>s+salePrice(products.find(p=>p.id===c.id))*c.n,0),d=Math.max(0,+document.getElementById('discount').value||0),t=Math.max(0,sub-d),totalKHR=Math.round(t*rate);document.getElementById('subtotal').textContent=money(sub);document.getElementById('total').textContent=money(t);document.getElementById('totalKHR').textContent=khr(t);document.getElementById('cart').innerHTML=cart.map(c=>{let p=products.find(x=>x.id===c.id),sp=salePrice(p);return `<div class="cartrow"><div><b>${esc(p.name)} ${saleLabel(p)}</b><div class="muted">${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> `:''}${money(sp)} each</div></div><div class="qty"><button onclick="chg(${p.id},-1)">−</button><span>${c.n}</span><button onclick="chg(${p.id},1)">+</button></div><b>${money(sp*c.n)}</b><button class="danger" onclick="del(${p.id})">×</button></div>`}).join('')||'<div class="muted">Cart is empty.</div>';let usd=+document.getElementById('paidUSD').value||0,khrPaid=+document.getElementById('paidKHR').value||0,receivedUSD=usd+khrPaid/rate,receivedKHR=Math.round(usd*rate)+khrPaid,remUSD=Math.max(0,t-receivedUSD),remKHR=Math.max(0,totalKHR-receivedKHR),changeUSD=Math.max(0,receivedUSD-t),changeKHR=Math.max(0,receivedKHR-totalKHR),complete=remUSD<0.000001&&remKHR===0&&!((receivedUSD-t)>0.000001||(receivedKHR-totalKHR)>0);['payTotalUSD','payReceivedUSD','payRemainingUSD','payChangeUSD'].forEach((id,i)=>{document.getElementById(id).textContent=money([t,receivedUSD,remUSD,changeUSD][i])});['payTotalKHR','payReceivedKHR','payRemainingKHR','payChangeKHR'].forEach((id,i)=>{document.getElementById(id).textContent=[totalKHR,receivedKHR,remKHR,changeKHR][i].toLocaleString()+' ៛'});const nc=document.getElementById('notComplete');if(nc)nc.style.display=(cart.length&&(remUSD>0.000001||remKHR>0))?'block':'none';document.getElementById('change').textContent=complete?'Paid in full':(changeUSD>0||changeKHR>0?`Cash Back: ${money(changeUSD)} • ${changeKHR.toLocaleString()} ៛`:`Remaining: ${money(remUSD)} • ${remKHR.toLocaleString()} ៛`)}
-function chg(id,d){let c=cart.find(x=>x.id===id),p=products.find(x=>x.id===id);c.n=Math.max(1,Math.min(c.n+d,p.qty));renderCart()}function del(id){cart=cart.filter(x=>x.id!==id);renderCart()}function clearCart(){cart=[];document.getElementById('discount').value=0;document.getElementById('paidUSD').value='';document.getElementById('paidKHR').value='';save();renderCart()}
+function chg(id,d){let c=cart.find(x=>x.id===id),p=products.find(x=>x.id===id);c.n=Math.max(1,Math.min(c.n+d,p.qty));renderProducts();renderCart()}function del(id){cart=cart.filter(x=>x.id!==id);renderProducts();renderCart()}function clearCart(){cart=[];document.getElementById('discount').value=0;document.getElementById('paidUSD').value='';document.getElementById('paidKHR').value='';save();renderProducts();renderCart()}
 
 function completeSale(){if(!cart.length)return alert('Cart is empty');let sub=cart.reduce((sum,c)=>sum+salePrice(products.find(p=>p.id===c.id))*c.n,0),d=Math.max(0,+document.getElementById('discount').value||0),total=Math.max(0,sub-d),paidUSD=+document.getElementById('paidUSD').value||0,paidKHR=+document.getElementById('paidKHR').value||0,receivedUSD=paidUSD+paidKHR/rate,totalKHR=Math.round(total*rate),receivedKHR=Math.round(paidUSD*rate)+paidKHR,remainingUSD=Math.max(0,total-receivedUSD),remainingKHR=Math.max(0,totalKHR-receivedKHR),changeUSD=Math.max(0,receivedUSD-total),changeKHR=Math.max(0,receivedKHR-totalKHR);if(pay==='CASH'){if(remainingUSD>0.000001||remainingKHR>0)return alert('NOT COMPLETE — there is still a remaining balance.');if(changeUSD>0.000001||changeKHR>0){if(!confirm(`Did you give the customer the change back?\n\nChange: ${money(changeUSD)} • ${changeKHR.toLocaleString()} ៛`))return;}}else if(pay==='CARD'||pay==='OTHER'){if(Math.abs(receivedUSD-total)>0.000001)return alert('NOT COMPLETE — there is still a remaining balance.')}const items=cart.map(c=>({id:c.id,n:c.n,unitPrice:salePrice(products.find(x=>x.id===c.id))}));for(let c of cart){let p=products.find(x=>x.id===c.id);if(p)p.qty-=c.n}let s={id:'R'+Date.now().toString().slice(-8),date:new Date().toISOString(),items,total,subtotal:sub,discount:d,payment:pay,paid:receivedUSD};sales.unshift(s);localStorage.setItem('propos_last_receipt_v1',JSON.stringify(s));save();clearCart();renderProducts();renderReports();alert('Sale completed. Receipt '+s.id);if(getPrinterSettings().autoPrint)printReceipt(s)}
 
@@ -583,29 +661,43 @@ function savePromotion(){
 }
 function clearPromotion(){promotion={on:'off',scope:'all',discount:0,start:'',end:'',items:[]};localStorage.setItem('propos_promotion_v1',JSON.stringify(promotion));loadPromotionSettings();renderSpecialPromoItems();renderProducts();renderInventory();renderCart();alert('Promotion turned OFF and cleared.');}
 
-function renderInventory(){document.getElementById('inventoryBody').innerHTML=products.map(p=>`<tr><td>${p.img?`<img src="${p.img}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:8px">`:''}<b>${esc(p.name)}</b> ${saleLabel(p)}<div class="muted">${esc(p.cat)}</div></td><td>${esc(p.sku)}</td><td>${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> ${money(salePrice(p))}`:money(p.price)}<div class="muted">${dualMoney(salePrice(p))}</div></td><td>${p.qty}</td><td>${p.min}</td><td class="${p.qty<=p.min?'low':''}">${p.qty<=p.min?'LOW':'OK'}</td><td><button class="secondary" onclick="editSale(${p.id})">Sale</button> <button class="secondary" onclick="restock(${p.id})">+ Stock</button> <button class="danger" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('')}
-function editSale(id){const p=products.find(x=>x.id===id);if(!p)return;pn.value=p.name;psku.value=p.sku;pbar.value=p.bar;pcat.value=p.cat;pcost.value=p.cost;pprice.value=p.price;pqty.value=p.qty;pmin.value=p.min;psalediscount.value=p.saleDiscount||0;psaleon.value=p.saleOn||'off';psalestart.value=p.saleStart||'';psaleend.value=p.saleEnd||'';window.editingProductId=id;window.pendingProductImage=p.img||'';document.getElementById('productImagePreview').innerHTML=p.img?`<img src="${p.img}" style="max-width:180px;max-height:100px;border-radius:8px">`:'';document.getElementById('modal').classList.add('show')}
+function renderInventory(){document.getElementById('inventoryBody').innerHTML=products.map(p=>`<tr><td>${p.img?`<img src="${p.img}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-right:8px">`:''}<b>${esc(p.name)}</b> ${saleLabel(p)}<div class="muted">${esc(p.cat)}</div></td><td>${esc(p.sku)}</td><td>${isSaleActive(p)?`<span class="old-price">${money(p.price)}</span> ${money(salePrice(p))}`:money(p.price)}<div class="muted">${dualMoney(salePrice(p))}</div></td><td>${p.qty}</td><td>${p.min}</td><td class="${p.qty<=p.min?'low':''}">${p.qty<=p.min?'LOW':'OK'}</td><td><button class="secondary" onclick="editSale(${p.id})">Edit</button> <button class="secondary" onclick="restock(${p.id})">+ Stock</button> <button class="danger" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('')}
+function editSale(id){const p=products.find(x=>x.id===id);if(!p)return;document.getElementById('productModalTitle').textContent='Edit Product';pn.value=p.name;psku.value=p.sku;pbar.value=p.bar;pcat.value=p.cat;pcost.value=p.cost;pprice.value=p.price;pqty.value=p.qty;pmin.value=p.min;psalediscount.value=p.saleDiscount||0;psaleon.value=p.saleOn||'off';psalestart.value=p.saleStart||'';psaleend.value=p.saleEnd||'';window.editingProductId=id;window.pendingProductImage=p.img||'';document.getElementById('productImagePreview').innerHTML=p.img?`<img src="${p.img}" style="max-width:180px;max-height:100px;border-radius:8px">`:'';document.getElementById('modal').classList.add('show')}
 
+let pendingDeleteProductId=null;
 function deleteProduct(id){
   const p=products.find(x=>x.id===id);
   if(!p)return;
-  const used=sales.some(s=>s.items && s.items.some(i=>i.id===id));
-  const msg=used
-    ? `Delete "${p.name}" from current inventory? Its past sales records will remain, but the product will no longer be available for new sales.`
-    : `Delete "${p.name}" from inventory? This cannot be undone.`;
-  if(!confirm(msg))return;
+  pendingDeleteProductId=id;
+  document.getElementById('deleteConfirmTitle').textContent='Delete this product?';
+  document.getElementById('deleteConfirmMessage').textContent='Are you sure you want to delete this product from inventory?';
+  document.getElementById('deleteConfirmModal').classList.add('show');
+}
+function cancelDeleteProduct(){
+  pendingDeleteProductId=null;
+  document.getElementById('deleteConfirmModal').classList.remove('show');
+}
+function confirmDeleteProduct(){
+  const id=pendingDeleteProductId;
+  const p=products.find(x=>x.id===id);
+  if(id===null || !p){cancelDeleteProduct();return;}
   products=products.filter(x=>x.id!==id);
   cart=cart.filter(x=>x.id!==id);
-  save();
+  pendingDeleteProductId=null;
+  document.getElementById('deleteConfirmModal').classList.remove('show');
+  // Persist the updated inventory directly, then refresh every affected view.
+  // Do not call save() here: this build may not define that helper, which
+  // would stop execution before the inventory can refresh.
+  localStorage.setItem(key, JSON.stringify(products));
   renderInventory();
   renderProducts();
   renderCart();
-  alert('Product deleted.');
 }
 
 function restock(id){let n=prompt('Add stock quantity:','10');if(n&&+n>0){products.find(p=>p.id===id).qty+=+n;save();renderInventory();renderProducts()}}
-function openProduct(){window.editingProductId=null;window.pendingProductImage='';document.getElementById('productImagePreview').innerHTML='';document.getElementById('pimg').value='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');psalediscount.value=0;psaleon.value='off';psalestart.value='';psaleend.value='';document.getElementById('modal').classList.add('show')}function closeModal(){document.getElementById('modal').classList.remove('show')}
-function saveProduct(){let old=window.editingProductId?products.find(x=>x.id===window.editingProductId):null;let p={id:window.editingProductId||Date.now(),name:pn.value.trim(),sku:psku.value.trim(),bar:pbar.value.trim(),cat:pcat.value.trim(),cost:+pcost.value||0,price:+pprice.value||0,qty:+pqty.value||0,min:+pmin.value||0,img:window.pendingProductImage||'',saleDiscount:Math.max(0,Math.min(100,+psalediscount.value||0)),saleOn:psaleon.value,saleStart:psalestart.value,saleEnd:psaleend.value,promoExcluded:old?.promoExcluded||false,specialPromoOn:old?.specialPromoOn||'off',specialPromoDiscount:old?.specialPromoDiscount||0};if(!p.name||!p.sku)return alert('Product name and SKU are required');let idx=products.findIndex(x=>x.id===p.id);if(idx>=0)products[idx]=p;else products.push(p);save();closeModal();window.pendingProductImage='';window.editingProductId=null;document.getElementById('productImagePreview').innerHTML='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');renderInventory();renderProducts()}
+function openProduct(){window.editingProductId=null;document.getElementById('productModalTitle').textContent='Add Product';window.pendingProductImage='';document.getElementById('productImagePreview').innerHTML='';document.getElementById('pimg').value='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');psalediscount.value=0;psaleon.value='off';psalestart.value='';psaleend.value='';document.getElementById('modal').classList.add('show')}function closeModal(){document.getElementById('modal').classList.remove('show')}
+function save(){localStorage.setItem(key,JSON.stringify(products));localStorage.setItem(skey,JSON.stringify(sales));localStorage.setItem(hkey,JSON.stringify(held));}
+function saveProduct(){let old=window.editingProductId?products.find(x=>x.id===window.editingProductId):null;let p={id:window.editingProductId||Date.now(),name:pn.value.trim(),sku:psku.value.trim(),bar:pbar.value.trim(),cat:pcat.value.trim(),cost:+pcost.value||0,price:+pprice.value||0,qty:+pqty.value||0,min:+pmin.value||0,img:window.pendingProductImage||'',saleDiscount:Math.max(0,Math.min(100,+psalediscount.value||0)),saleOn:psaleon.value,saleStart:psalestart.value,saleEnd:psaleend.value,promoExcluded:old?.promoExcluded||false,specialPromoOn:old?.specialPromoOn||'off',specialPromoDiscount:old?.specialPromoDiscount||0};if(!p.name||!p.sku)return alert('Product name and SKU are required');let idx=products.findIndex(x=>x.id===p.id);if(idx>=0)products[idx]=p;else products.push(p);save();closeModal();window.pendingProductImage='';window.editingProductId=null;document.getElementById('productImagePreview').innerHTML='';['pn','psku','pbar','pcat','pcost','pprice','pqty'].forEach(id=>document.getElementById(id).value='');pmin.value=5;renderInventory();renderProducts()}
 function getSaleHistoryCode(){return localStorage.getItem('propos_sale_history_code_v1')||'1234'}
 function requireSaleHistoryCode(action){const code=prompt('4-digit code required to '+action+':');if(code===null)return false;if(!/^\d{4}$/.test(code)||code!==getSaleHistoryCode()){alert('Incorrect 4-digit code. No changes were made.');return false}return true}
 function renderSales(){document.getElementById('salesBody').innerHTML=sales.map(s=>`<tr><td>${s.id}</td><td>${new Date(s.date).toLocaleString()}</td><td>${dualMoney(s.total)}</td><td>${s.payment}</td><td>${esc(s.customer||'')}</td><td><button class="danger" onclick="refund('${s.id}')">Refund</button></td></tr>`).join('')||'<tr><td colspan="6">No sales yet.</td></tr>'}
@@ -714,13 +806,26 @@ function uploadProductPhoto(){
 
 let invCameraStream=null, invDetector=null, invScanTimer=null, invCameraFacing='environment';
 
+let inventoryEntryWasOpen=false;
 async function openInventoryScanner(){
-  document.getElementById('invScanner').classList.add('show');
+  const scanner=document.getElementById('invScanner');
+  const entry=document.getElementById('modal');
+  inventoryEntryWasOpen=!!(entry && entry.classList.contains('show'));
+  // Move scanner to the end of body so it cannot be trapped beneath the entry modal.
+  if(scanner.parentElement!==document.body)document.body.appendChild(scanner);
+  scanner.style.setProperty('z-index','2147483647','important');
+  scanner.classList.add('show');
+  document.body.style.overflow='hidden';
   await startInventoryCamera();
 }
 function closeInventoryScanner(){
   document.getElementById('invScanner').classList.remove('show');
   stopInventoryCamera();
+  document.body.style.overflow='';
+  // Keep the product-entry screen open after closing or scanning.
+  const entry=document.getElementById('modal');
+  if(inventoryEntryWasOpen && entry)entry.classList.add('show');
+  inventoryEntryWasOpen=false;
 }
 function stopInventoryCamera(){
   if(invScanTimer){clearTimeout(invScanTimer);invScanTimer=null}
@@ -844,9 +949,12 @@ async function detectLoop(){
 }
 function handleScannedCode(value){
   document.getElementById('scanStatus').textContent='Detected: '+value;
-  const p=products.find(x=>x.sku===value || x.bar===value);
+  const p=products.find(x=>String(x.sku||'').trim()===value || String(x.bar||'').trim()===value);
   if(p){
+    lastScannedProductId=p.id;
     add(p.id);
+    document.getElementById('search').value='';
+    renderProducts();
     setTimeout(closeScanner,500);
   }else{
     document.getElementById('search').value=value;
@@ -1483,3 +1591,4 @@ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
 
 function getPrinterSettings(){try{return JSON.parse(localStorage.getItem('begirl9_printer_v1')||'{}')}catch(e){return {}}}function loadPrinterSettings(){const p=getPrinterSettings();const a=document.getElementById('printerAuto'),t=document.getElementById('printerType');if(a)a.value=p.autoPrint?'on':'off';if(t)t.value=p.type||'system'}function savePrinterSettings(){const a=document.getElementById('printerAuto'),t=document.getElementById('printerType');localStorage.setItem('begirl9_printer_v1',JSON.stringify({autoPrint:a?.value==='on',type:t?.value||'system'}))}document.addEventListener('DOMContentLoaded',loadPrinterSettings);
 </script></body></html>
+
