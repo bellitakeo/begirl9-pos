@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -150,6 +151,74 @@ main{padding:20px;max-width:1500px;width:100%;margin:auto}.top{display:flex;just
 @media(max-width:600px){
   #modal{align-items:flex-start;padding:8px}
   #modal .modalbox{max-height:calc(100dvh - 16px);padding:16px}
+}
+
+
+/* Mobile portrait POS layout: give the POS controls more breathing room
+   below the navigation and make touch targets easier to tap. */
+@media (max-width: 600px) and (orientation: portrait) {
+  main { padding: 22px 12px calc(24px + env(safe-area-inset-bottom)); }
+  #pos { padding-top: 12px; }
+  #pos .top { margin-bottom: 20px; gap: 12px; }
+  #pos .grid { gap: 14px; }
+  #pos .card { padding: 14px; }
+  #pos .search { align-items: stretch; gap: 8px; }
+  #pos .search input,
+  #pos .search button { min-height: 48px; }
+  #pos .actions button,
+  #pos .paygrid button { min-height: 46px; }
+  #pos .pos-product-view { margin-top: 16px; }
+}
+
+
+/* Inventory scanner refinements for portrait phones */
+#invScanner .modalbox > div:first-child {
+  margin-top: 8px;
+  min-height: 48px;
+  align-items: center;
+}
+#invScanner .modalbox > .actions {
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px !important;
+  margin-bottom: 8px;
+}
+#invScanner .modalbox > .actions button {
+  min-height: 46px;
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  #invScanner .modalbox {
+    padding: max(20px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) !important;
+    gap: 8px;
+  }
+  #invScanner .modalbox > div:first-child {
+    margin-top: 10px;
+    min-height: 50px;
+  }
+  #invScanner .modalbox > h2 { font-size: 21px; }
+  #invScanner .modalbox > p { margin: 2px 0 6px; line-height: 1.35; }
+  #invScanner #invCameraVideo {
+    height: min(48dvh, 430px) !important;
+    min-height: 180px !important;
+    max-height: 430px !important;
+  }
+  #invScanner .modalbox > div[style*="min-height:260px"] {
+    min-height: 0 !important;
+    flex: 0 1 auto;
+  }
+  #invScanner .modalbox > .actions {
+    justify-content: center;
+    margin-top: 0 !important;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+  #invScanner .modalbox > .actions button {
+    flex: 0 1 48%;
+    min-width: 0;
+    padding: 12px 8px;
+    white-space: nowrap;
+  }
 }
 
 </style></head>
